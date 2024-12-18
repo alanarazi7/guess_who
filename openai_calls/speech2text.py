@@ -4,6 +4,7 @@ import wave
 import tempfile
 import os
 
+from constants import RECORDING_SECONDS
 from openai_calls.constants import OPENAI_API_KEY
 
 openai.api_key = OPENAI_API_KEY
@@ -50,9 +51,9 @@ def transcribe_audio(file_path):
     return transcript.text
 
 
-def do_speech_to_text():
+def do_speech_to_text(seconds: int = RECORDING_SECONDS):
     # Record and transcribe audio
-    audio_file_path = record_audio(duration=5)
+    audio_file_path = record_audio(duration=seconds)
     transcription = transcribe_audio(audio_file_path)
 
     print("Transcription:", transcription)
