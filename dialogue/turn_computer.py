@@ -30,4 +30,5 @@ def do_computer_turn(board: Board):
     ai_answer = ask_textually(prompt, force_json=True)
     print_ts(f"AI Answer: {ai_answer}")
     possible_characters = [k for k, v in ai_answer.items() if v]
+    board.update_board___(possible_characters=possible_characters)
     return possible_characters

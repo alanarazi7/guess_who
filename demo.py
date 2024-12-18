@@ -9,7 +9,7 @@ from dialogue.turn_player import do_player_turn
 
 from dialogue.turn_computer import do_computer_turn
 from game_data.board import Board
-from game_data.characters import CHARACTERS, characters_to_dataframe
+from game_data.characters import CHARACTERS
 from openai_calls.text2speech import play_voice
 from utils import print_ts
 
@@ -22,12 +22,7 @@ def main():
     image = Image.open(image_path)
     st.image(image, caption="Guess Who Board")
 
-    st.write("**Think of a character from the list below, and I will try to guess it!**")
-    st.write("### Characters:")
-
-    # Display characters in a dataframe with emojis
-    df = characters_to_dataframe(CHARACTERS)
-    st.table(df)
+    st.write("**Think of a character from the picture above, and I will try to guess it!**")
 
     if st.button("Start Game!"):
         if IS_FULL_DEMO:
@@ -42,18 +37,25 @@ def main():
         st.write("\n---")
         print_ts("Starting the game!")
 
-        board = Board(remaining=list(CHARACTERS))
+        player_board = Board(remaining=list(CHARACTERS))
+        ai_board = Board(remaining=list(CHARACTERS))
         while True:
             play_voice("Please ask a question.")
-            do_player_turn(assistant_hidden_char=assistant_hidden_char)
-            print_ts(f"Still have {len(board)} remaining characters.")
-            possible_characters = do_computer_turn(board)
-            board.update_board(possible_characters=possible_characters)
-            if len(board) > 1:
-                st.info(f"{len(board)} Remaining Characters: {str([p.name for p in board.remaining])}", icon="🤖")
-                play_voice(f"I have {len(board)} more possible characters!")
+            do_player_turn(assistant_hidden_char=assistant_hidden_char, board=player_board)
+            if len(player_board) > 1:
+                st.info(f"{len(player_board)} Remaining Characters: {str([p.name for p in player_board.remaining])}", icon="👤")
+                play_voice(f"You have {len(player_board)} more possible characters!")
             else:
-                winning_msg = f"AI: I have found your character! It is {board.remaining[0].name}."
+                winning_msg = f"You found my character! It is {player_board.remaining[0].name}."
+                st.success(winning_msg)
+                play_voice(winning_msg)
+                break
+            do_computer_turn(ai_board)
+            if len(ai_board) > 1:
+                st.info(f"{len(ai_board)} Remaining Characters: {str([p.name for p in ai_board.remaining])}", icon="🤖")
+                play_voice(f"I have {len(ai_board)} more possible characters!")
+            else:
+                winning_msg = f"AI: I have found your character! It is {ai_board.remaining[0].name}."
                 st.success(winning_msg)
                 play_voice(winning_msg)
                 break

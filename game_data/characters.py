@@ -51,6 +51,15 @@ class Person:
     def data(self):
         return str(asdict(self))
 
+    def get_traits(self, traits: List[str]):
+        return {t: getattr(self, t) for t in traits}
+
+    def has_traits(self, traits: List[str]) -> bool:
+        for t in traits:
+            if getattr(self, t):
+                return True
+        return False
+
 
 # TODO: currently we don't allow guessing, but it's easily expandable by allowing "name" to be a trait
 TRAITS = [field.name for field in fields(Person) if field.name != 'name']

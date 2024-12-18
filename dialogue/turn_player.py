@@ -1,25 +1,28 @@
-from dataclasses import asdict
-
 import streamlit as st
 
+from dialogue.question_to_condition import get_trait_from_question
+from game_data.board import Board
 from game_data.characters import Person
 from openai_calls.speech2text import do_speech_to_text
 from openai_calls.text2speech import play_voice
-from openai_calls.text2text import ask_textually
 from utils import print_ts
 
 
-def do_player_turn(assistant_hidden_char: Person):
+def do_player_turn(assistant_hidden_char: Person, board: Board):
     user_question = do_speech_to_text()
     st.info(f"User Question: {user_question}", icon="👤")
-    prompt = (f"You are an AI assistant playing guess-who, and your character is {asdict(assistant_hidden_char)}."
-              f"The user has asked you: {user_question}. Answer directly YES or NO, without chit-chat.")
-    print_ts(f"Planning to ask the AI the following prompt: {prompt}")
-    ai_answer = ask_textually(prompt)
-    print_ts(f"AI Answer: {ai_answer}")
-    last_word = ai_answer.split()[-1].lower().replace('.', "")
-    if last_word not in ["yes", "no"]:
-        raise ValueError(f"AI answer must be 'Yes' or 'No', but it answered: {ai_answer}")
-    assistant_answer = f"The answer to your question is: {last_word}"
+    traits = get_trait_from_question(user_question)
+    gender_traits = {'male', 'female'}
+    if len(traits) > 1 and set(traits).union(gender_traits):
+        traits = list(set(traits).difference(gender_traits))
+        print_ts(f"Removing the gender traits, got now {traits}")
+    st.info(f"We looked at the following: {assistant_hidden_char.get_traits(traits)}", icon="🐛")
+    if not traits:
+        play_voice(f"I'm sorry, your question is not valid. I'm ending the game for now, but we'll fix this!")
+        assert False
+    has_traits = assistant_hidden_char.has_traits(traits)
+    print_ts(f"We have determined that the answer to the question is: {has_traits}")
+    assistant_answer = f"The answer to your question is: {has_traits}"
     st.info(f"AI Answer: {assistant_answer}", icon="🤖")
     play_voice(assistant_answer)
+    board.update_board(traits, has_traits)
