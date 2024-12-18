@@ -17,6 +17,9 @@ class Person:
     freckles: bool
     jewelry: bool
 
+    def __str__(self):
+        return self.name
+
 
 # Predefined characters
 CHARACTERS: List[Person] = [
