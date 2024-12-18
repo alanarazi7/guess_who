@@ -1,0 +1,2 @@
+
+IS_FULL_DEMO = False
