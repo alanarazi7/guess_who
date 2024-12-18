@@ -1,16 +1,14 @@
-from typing import List
-
 import streamlit as st
 
-from game_data.characters import Person
+from game_data.board import Board
 from openai_calls.speech2text import do_speech_to_text
 from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
 from utils import print_ts
 
 
-def do_computer_turn(remaining_characters: List[Person]):
-    current_board = "\n".join([p.data for p in remaining_characters])
+def do_computer_turn(board: Board):
+    current_board = "\n".join([p.data for p in board.remaining])
     prompt = (
         f'''You are an AI playing a game of guess-who. You are trying to guess the hidden character of your opponent. 
         So far, the remaining characters in the board are the following ones: {current_board}. 
@@ -32,5 +30,4 @@ def do_computer_turn(remaining_characters: List[Person]):
     ai_answer = ask_textually(prompt, force_json=True)
     print_ts(f"AI Answer: {ai_answer}")
     possible_characters = [k for k, v in ai_answer.items() if v]
-    st.info(f"Possible Characters: {possible_characters}", icon="🤖")
     return possible_characters
