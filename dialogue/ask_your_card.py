@@ -7,7 +7,7 @@ from openai_calls.text2text import ask_textually
 
 def ask_your_card(user_name) -> Person:
     secret_card_prompt = (f"{SYS_MSG}. The kid's name is {user_name}. "
-                          f"Ask him/her to pick a character and tell it to you."
+                          f"Ask him/her to pick a character from the options on the game board in front of him."
                           f"Clarify that although he's telling it to you, you'll keep it a secret and only will use it to "
                           f"keep track of the game - be fun about it!")
     ai_funny = ask_textually(secret_card_prompt)
