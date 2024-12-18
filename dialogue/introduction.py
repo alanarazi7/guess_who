@@ -16,5 +16,5 @@ def explain_game_and_ask_name() -> str:
                                f"Confirm the name. Output a JSON with the key `name` and the value being the name")
     ai_name_recognition = ask_textually(name_recognition_prompt, force_json=True)
     player_name = ai_name_recognition['name']
-    st.success(f"Nice to meet you, {player_name}!")
+    st.success(f"Nice to meet you, {player_name}!", icon="👋")
     return player_name

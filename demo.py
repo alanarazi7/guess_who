@@ -30,7 +30,7 @@ def main():
         assistant_hidden_char = random.choice(CHARACTERS)
         player_hidden_char = ask_your_card(user_name=user_name)
         # let's display his choice
-        st.info(f"AI: I have chosen a character: {assistant_hidden_char}. Try to guess who it is!")
+        st.info(f"I chosen {assistant_hidden_char}. Try to guess who it is", icon="🤖")
         st.info(f"You picked {player_hidden_char}, but don't worry, I won't cheat!", icon="🤫")
         # Start Game
         # TODO: randomly decide who starts...
