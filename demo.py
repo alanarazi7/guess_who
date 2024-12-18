@@ -41,7 +41,7 @@ def main():
         ai_board = Board(remaining=list(CHARACTERS))
         while True:
             play_voice("Please ask a question.")
-            do_player_turn(assistant_hidden_char=assistant_hidden_char, board=player_board)
+            do_player_turn(assistant_hidden_char=assistant_hidden_char, board=player_board, player_name=user_name)
             if len(player_board) > 1:
                 st.info(f"{len(player_board)} Remaining Characters: {str([p.name for p in player_board.remaining])}", icon="👤")
                 play_voice(f"You have {len(player_board)} more possible characters!")
