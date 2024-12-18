@@ -10,7 +10,7 @@ def play_voice(text):
     # Generate speech with OpenAI's Voice API
     response = openai.audio.speech.create(
         model="tts-1",
-        voice="alloy",
+        voice="nova",
         input=text
     )
     # Save audio to a temporary MP3 file
