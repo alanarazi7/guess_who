@@ -1,18 +1,10 @@
 import streamlit as st
 from PIL import Image
 
+from game_data.characters import CHARACTERS, characters_to_dataframe
 from openai_calls.speech2text import do_speech_to_text
 from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
-
-# Predefined characters
-characters = [
-    {"name": "Alex", "gender": "Male"},
-    {"name": "Taylor", "gender": "Female"},
-    {"name": "Jordan", "gender": "Male"},
-    {"name": "Morgan", "gender": "Female"},
-    {"name": "Casey", "gender": "Male"}
-]
 
 
 def main():
@@ -25,8 +17,10 @@ def main():
 
     st.write("**Think of a character from the list below, and I will try to guess it!**")
     st.write("### Characters:")
-    for i, char in enumerate(characters):
-        st.write(f"{i + 1}. Name: {char['name']}, Gender: {char['gender']}")
+
+    # Display characters in a dataframe with emojis
+    df = characters_to_dataframe(CHARACTERS)
+    st.dataframe(df)
 
     # Start Game
     st.write("\n---")
@@ -53,7 +47,7 @@ def main():
         st.success(f"You said: {user_answer_2}")
 
         # Final Guess
-        ai_prompt_guess = f"Based on the answers: 1) {user_answer_1}, 2) {user_answer_2}, guess the character from the following list: {characters}."
+        ai_prompt_guess = f"Based on the answers: 1) {user_answer_1}, 2) {user_answer_2}, guess the character from the following list: {characters__}."
         ai_guess = ask_textually(ai_prompt_guess)
         play_voice(f"I guess your character is {ai_guess}!")
         st.success(f"🎉 AI Guess: {ai_guess}")
