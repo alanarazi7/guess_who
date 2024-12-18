@@ -1,21 +1,48 @@
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, fields
 from typing import List
 
-import pandas as pd
-
+from dataclasses import dataclass
 
 @dataclass
 class Person:
     name: str
-    hair_color: str
-    skin_color: str
-    gender: str
-    glasses: bool
-    facial_hair: bool
-    hat: bool
-    age: str
-    freckles: bool
-    jewelry: bool
+    white_hair: bool = False
+    black_hair: bool = False
+    red_hair: bool = False
+    blonde_hair: bool = False
+    brown_hair: bool = False
+    mixed_color_hair: bool = False
+    beard: bool = False
+    moustache: bool = False
+    stubble: bool = False
+    clean_shaved_face: bool = False
+    thick_eyebrows: bool = False
+    blushing_cheeks: bool = False
+    hat: bool = False
+    glasses: bool = False
+    earrings: bool = False
+    lipstick: bool = False
+    bald_head: bool = False
+    curls: bool = False
+    ponytail: bool = False
+    parting: bool = False
+    full_head_of_hair: bool = False
+    male: bool = False
+    female: bool = False
+    large_nose: bool = False
+    small_nose: bool = False
+    blue_eyes: bool = False
+    green_eyes: bool = False
+    brown_eyes: bool = False
+    thin_lips: bool = False
+    thick_lips: bool = False
+    small_mouth: bool = False
+    darker_skin: bool = False
+    teeth: bool = False
+    dimples: bool = False
+    freckles: bool = False
+    smile: bool = False
+
 
     def __str__(self):
         return self.name
@@ -25,46 +52,35 @@ class Person:
         return str(asdict(self))
 
 
+# TODO: currently we don't allow guessing, but it's easily expandable by allowing "name" to be a trait
+TRAITS = [field.name for field in fields(Person) if field.name != 'name']
+
 # Predefined characters
 CHARACTERS: List[Person] = [
-    Person(name="Laura", hair_color="brown", skin_color="light", gender="female", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=True),
-    Person(name="Mike", hair_color="black", skin_color="light", gender="male", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Lily", hair_color="blue", skin_color="light", gender="female", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=True),
-    Person(name="Sam", hair_color="blonde", skin_color="light", gender="male", glasses=False, facial_hair=False, hat=True, age="young", freckles=False, jewelry=False),
-    Person(name="Carmen", hair_color="black", skin_color="dark", gender="female", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Jordan", hair_color="brown", skin_color="dark", gender="male", glasses=False, facial_hair=True, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Rachel", hair_color="blonde", skin_color="light", gender="female", glasses=True, facial_hair=False, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Ben", hair_color="brown", skin_color="light", gender="male", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Katie", hair_color="blonde", skin_color="light", gender="female", glasses=False, facial_hair=False, hat=True, age="young", freckles=True, jewelry=False),
-    Person(name="Joe", hair_color="black", skin_color="dark", gender="male", glasses=False, facial_hair=True, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Amy", hair_color="black", skin_color="light", gender="female", glasses=True, facial_hair=False, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Gabe", hair_color="brown", skin_color="light", gender="male", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Emma", hair_color="red", skin_color="light", gender="female", glasses=False, facial_hair=False, hat=False, age="young", freckles=True, jewelry=False),
-    Person(name="Al", hair_color="white", skin_color="light", gender="male", glasses=False, facial_hair=True, hat=False, age="old", freckles=False, jewelry=False),
-    Person(name="Mia", hair_color="black", skin_color="light", gender="female", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Leo", hair_color="brown", skin_color="dark", gender="male", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Farah", hair_color="black", skin_color="dark", gender="female", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=True),
-    Person(name="Daniel", hair_color="orange", skin_color="light", gender="male", glasses=False, facial_hair=True, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Sofia", hair_color="brown", skin_color="light", gender="female", glasses=False, facial_hair=False, hat=False, age="young", freckles=True, jewelry=False),
-    Person(name="David", hair_color="blonde", skin_color="light", gender="male", glasses=False, facial_hair=False, hat=True, age="young", freckles=False, jewelry=False),
-    Person(name="Olivia", hair_color="red", skin_color="dark", gender="female", glasses=False, facial_hair=False, hat=False, age="young", freckles=True, jewelry=False),
-    Person(name="Eric", hair_color="blue", skin_color="light", gender="male", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=False),
-    Person(name="Liz", hair_color="white", skin_color="light", gender="female", glasses=True, facial_hair=False, hat=False, age="old", freckles=False, jewelry=True),
-    Person(name="Nick", hair_color="blonde", skin_color="light", gender="male", glasses=False, facial_hair=False, hat=False, age="young", freckles=False, jewelry=False)
+    Person(name="Audrey", white_hair=True, clean_shaved_face=True, earrings=True, lipstick=True),
+    Person(name="Mia", black_hair=True, clean_shaved_face=True, lipstick=True),
+    Person(name="Lily", brown_hair=True, clean_shaved_face=True, hat=True, lipstick=True),
+    Person(name="Sara", black_hair=True, clean_shaved_face=True, lipstick=True),
+    Person(name="Katie", blonde_hair=True, clean_shaved_face=True, hat=True, lipstick=True),
+    Person(name="Sophia", brown_hair=True, clean_shaved_face=True, lipstick=True, earrings=True),
+    Person(name="Rachel", brown_hair=True, clean_shaved_face=True, glasses=True, earrings=True, lipstick=True),
+    Person(name="Olivia", brown_hair=True, mixed_color_hair=True, clean_shaved_face=True, lipstick=True),
+    Person(name="Laura", black_hair=True, clean_shaved_face=True, earrings=True, lipstick=True),
+    Person(name="Liz", white_hair=True, clean_shaved_face=True, glasses=True, lipstick=True),
+    Person(name="Amy", black_hair=True, mixed_color_hair=True, clean_shaved_face=True, glasses=True, lipstick=True),
+    Person(name="Jordan", mixed_color_hair=True, beard=True, moustache=True, thick_eyebrows=True, earrings=True),
+    Person(name="Mike", black_hair=True, clean_shaved_face=True, blushing_cheeks=True, hat=True),
+    Person(name="Leo", white_hair=True, moustache=True),
+    Person(name="Sam", black_hair=True, stubble=True, clean_shaved_face=True, thick_eyebrows=True, hat=True),
+    Person(name="Daniel", red_hair=True, beard=True, moustache=True, thick_eyebrows=True),
+    Person(name="Jo", moustache=True, thick_eyebrows=True, glasses=True),
+    Person(name="David", blonde_hair=True, moustache=True, thick_eyebrows=True, hat=True),
+    Person(name="Ben", brown_hair=True, stubble=True, clean_shaved_face=True, glasses=True, earrings=True),
+    Person(name="Eric", mixed_color_hair=True, clean_shaved_face=True),
+    Person(name="Al", white_hair=True, beard=True, moustache=True, thick_eyebrows=True, glasses=True),
+    Person(name="Nick", blonde_hair=True, stubble=True, earrings=True),
+    Person(name="Lucas", black_hair=True, clean_shaved_face=True),
+    Person(name="Emma", red_hair=True, clean_shaved_face=True, blushing_cheeks=True, lipstick=True),
 ]
 
-
-def characters_to_dataframe(characters):
-    data = [{
-        "Name": char.name,
-        "Hair Color": f"\U0001F9B0 {char.hair_color.capitalize()}",
-        "Skin Color": f"\U0001F471 {char.skin_color.capitalize()}",
-        "Gender": f"{'\U0001F468 Male' if char.gender == 'male' else '\U0001F469 Female'}",
-        "Glasses": "\U0001F453 Yes" if char.glasses else "\U0001F636 No",
-        "Facial Hair": "\U0001F9BE Yes" if char.facial_hair else "\U0001F636 No",
-        "Hat": "\U0001F9E2 Yes" if char.hat else "\U0001F636 No",
-        "Age": f"\U0001F474 {char.age.capitalize()}",
-        "Freckles": "\U0001F9B0 Yes" if char.freckles else "\U0001F636 No",
-        "Jewelry": "\U0001F48E Yes" if char.jewelry else "\U0001F636 No"
-    } for char in characters]
-    return pd.DataFrame(data)
+print(TRAITS)
