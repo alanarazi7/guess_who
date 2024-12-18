@@ -1,5 +1,3 @@
-import ast
-import json
 import random
 from dataclasses import asdict
 
@@ -10,7 +8,6 @@ from PIL import Image
 from constants import IS_FULL_DEMO
 from dialogue.introduction import explain_game_and_ask_name
 from game_data.characters import CHARACTERS, characters_to_dataframe
-from game_data.player_turn import PlayerTurn
 from openai_calls.speech2text import do_speech_to_text
 from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
@@ -43,6 +40,7 @@ def main():
         # Start Game
         # TODO: randomly decide who starts...
         st.write("\n---")
+        print_ts("Starting the game!")
         play_voice("Let's get started! Please ask a question.")
 
         # Initial dataframe for filtering
@@ -50,20 +48,25 @@ def main():
 
 
         ### user asks a question
+        print_ts(f"User asking question...")
         user_question = do_speech_to_text()
+        print_ts("User asked question")
         st.info(f"User Question: {user_question}", icon="👤")
         prompt = (f"You are an AI assistant playing guess-who, and your character is {asdict(assistant_hidden_char)}."
-                  f"The user has asked you: {user_question}. You should reason about whether the answer is."
-                  f"After your finish reasoning, output the following format - FINAL_ANSWER: Yes/No")
+                  f"The user has asked you: {user_question}. Answer directly YES or NO, without chit-chat.")
+        print_ts("Computer to reason about user question...")
         print_ts(f"Planning to ask the AI the following prompt: {prompt}")
         ai_answer = ask_textually(prompt)
+        print_ts("Computer answering user question...")
         print_ts(f"AI Answer: {ai_answer}")
-        last_word = ai_answer.split()[-1].lower()
+        last_word = ai_answer.split()[-1].lower().replace('.', "")
         if last_word not in ["yes", "no"]:
             raise ValueError(f"AI answer must be 'Yes' or 'No', but it answered: {ai_answer}")
         assistant_answer = f"The answer to your question is: {last_word}"
         st.info(f"AI Answer: {assistant_answer}", icon="🤖")
+        print_ts("Computer replying in voice...")
         play_voice(assistant_answer)
+        print_ts("Computer replied!...")
 
 
         ## computer asks a question
@@ -71,23 +74,30 @@ def main():
         prompt = (f"You are an AI playing a game of guess-who. You are trying to guess the hidden character of your opponent. So far, the remaining characters in the board are the following ones:"
                   f"{the_board}. You have to ask a question to the user to try to guess the character, and it should be a yes/no question. What is your question?")
         # print_ts(f"Planning to ask the user the following prompt: {prompt}")
+        print_ts("Computer to think about q...")
         ai_question = ask_textually(prompt)
+        print_ts("Computer thought q...")
         st.info(f"AI Question: {ai_question}", icon="🤖")
         # print_ts(f"AI Question: {ai_question}")
+        print_ts("Computer ask q in voice...")
         play_voice(ai_question)
+        print_ts("Computer asked q in voice...")
         user_answer = do_speech_to_text()
+        print_ts("User answered in voice...")
         st.info(f"User Answer: {user_answer}", icon="👤")
+        # st.write(f"Planning to ask the AI the following prompt: {prompt}")
         prompt = (f"You are an AI playing a game of guess who. This is the board you have right now: {the_board}."
                   f"You asked the user the following question: {ai_question}. The user answered: {user_answer}."
                   f"We now want to filter all the characters that are still possible given the user's answer. "
                   f"What are the characters that are still possible?"
-                  f"Answer in a JSON, where the keys are the character names, and the values are a dictionary with two keys: `reasoning` and `is_possible`, where this should be a boolean. "
+                  f"Answer in a JSON, where the keys are the character names, and the values are a boolean if the character is still possible. "
                   f"Make sure your JSON includes all the characters, whether they are possible or not.")
-        # st.write(f"Planning to ask the AI the following prompt: {prompt}")
+        print_ts("Computer to reason about conditions...")
         ai_answer = ask_textually(prompt, force_json=True)
+        print_ts("Computer reasoned about conditions...")
         # print_ts(f"The type of the answer is: {type(ai_answer)}")
         print_ts(f"AI Answer: {ai_answer}")
-        possible_characters = [k for k, v in ai_answer.items() if v['is_possible']]
+        possible_characters = [k for k, v in ai_answer.items() if v]
         st.info(f"Possible Characters: {possible_characters}", icon="🤖")
         play_voice(f"The characters that are still possible are: {possible_characters}")
 
