@@ -1,18 +1,20 @@
+from dialogue.system_message import SYS_MSG
 from openai_calls.speech2text import do_speech_to_text
 from openai_calls.text2speech import play_voice
 import streamlit as st
 
-from utils import print_ts
+from openai_calls.text2text import ask_textually
 
 
-def explain_game_and_ask_name():
-    # Greeting the player and asking for their name
-    print_ts("Presenting the game and asking for the player's name")
-    play_voice("Hello and welcome to the AI-Powered Guess Who Game! What is your name?")
-    print(f"Asking name...")
+def explain_game_and_ask_name() -> str:
+    opening_prompt = (f"{SYS_MSG}. Welcome the kid to the game, and explain in one sentences what are the rules of "
+                      f"Guess Who. End by asking the kid's name")
+    ai_intro = ask_textually(opening_prompt)
+    play_voice(ai_intro)
     player_name = do_speech_to_text()
+    name_recognition_prompt = (f"You asked for a kid's name, and he said it's: {player_name}."
+                               f"Confirm the name. Output a JSON with the key `name` and the value being the name")
+    ai_name_recognition = ask_textually(name_recognition_prompt, force_json=True)
+    player_name = ai_name_recognition['name']
     st.success(f"Nice to meet you, {player_name}!")
-    # TODO: pass my answer to GPT with a prompt, don't hardcode
-    print(f"Got name, greeting back")
-    play_voice(f"Nice to meet you, {player_name}! Think of a character from the list, and I will try to guess it.")
-    print(f"Explaining the game...")
+    return player_name

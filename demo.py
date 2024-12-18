@@ -4,6 +4,7 @@ import streamlit as st
 from PIL import Image
 
 from constants import IS_FULL_DEMO
+from dialogue.ask_your_card import ask_your_card
 from dialogue.introduction import explain_game_and_ask_name
 from dialogue.turn_player import do_player_turn
 
@@ -25,13 +26,12 @@ def main():
     st.write("**Think of a character from the picture above, and I will try to guess it!**")
 
     if st.button("Start Game!"):
-        if IS_FULL_DEMO:
-            explain_game_and_ask_name()
-        # TODO: here we need to hide the chosen character - for debug purpose, we want to show it
+        user_name = explain_game_and_ask_name()
         assistant_hidden_char = random.choice(CHARACTERS)
+        player_hidden_char = ask_your_card(user_name=user_name)
         # let's display his choice
         st.info(f"AI: I have chosen a character: {assistant_hidden_char}. Try to guess who it is!")
-
+        st.info(f"You picked {player_hidden_char}, but don't worry, I won't cheat!", icon="🤫")
         # Start Game
         # TODO: randomly decide who starts...
         st.write("\n---")
