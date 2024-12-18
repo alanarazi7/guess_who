@@ -1,3 +1,5 @@
+import ast
+import json
 import random
 from dataclasses import asdict
 
@@ -47,40 +49,46 @@ def main():
 
         ### user asks a question
         user_question = do_speech_to_text()
+        st.info(f"User Question: {user_question}", icon="👤")
         prompt = (f"You are an AI assistant playing guess-who, and your character is {asdict(assistant_hidden_char)}."
                   f"The user has asked you: {user_question}. You should reason about whether the answer is."
                   f"After your finish reasoning, output the following format - FINAL_ANSWER: Yes/No")
-        st.write(f"Planning to ask the AI the following prompt: {prompt}")
+        print(f"Planning to ask the AI the following prompt: {prompt}")
         ai_answer = ask_textually(prompt)
-        st.write(f"AI Answer: {ai_answer}")
+        print(f"AI Answer: {ai_answer}")
         last_word = ai_answer.split()[-1].lower()
         if last_word not in ["yes", "no"]:
             raise ValueError(f"AI answer must be 'Yes' or 'No', but it answered: {ai_answer}")
-        play_voice(f"The answer to your question is: {last_word}")
+        assistant_answer = f"The answer to your question is: {last_word}"
+        st.write(f"AI Answer: {assistant_answer}", icon="🤖")
+        play_voice(assistant_answer)
 
 
         ## computer asks a question
         the_board = current_df.to_dict('records')
         prompt = (f"You are an AI playing a game of guess-who. You are trying to guess the hidden character of your opponent. So far, the remaining characters in the board are the following ones:"
                   f"{the_board}. You have to ask a question to the user to try to guess the character, and it should be a yes/no question. What is your question?")
-        st.write(f"Planning to ask the user the following prompt: {prompt}")
+        # print(f"Planning to ask the user the following prompt: {prompt}")
         ai_question = ask_textually(prompt)
-        st.write(f"AI Question: {ai_question}")
+        st.info(f"AI Question: {ai_question}", icon="🤖")
+        # print(f"AI Question: {ai_question}")
         play_voice(ai_question)
         user_answer = do_speech_to_text()
+        st.info(f"User Answer: {user_answer}", icon="👤")
         prompt = (f"You are an AI playing a game of guess who. This is the board you have right now: {the_board}."
                   f"You asked the user the following question: {ai_question}. The user answered: {user_answer}."
                   f"We now want to filter all the characters that are still possible given the user's answer. "
                   f"What are the characters that are still possible?"
-                  f"Answer in a dictionary, where the keys are the character names, and each dictionary has two keys: reasoning and is_possible, where this should be a boolean."
-                  f"Make sure you provide a final answer about each of the characters.")
-        st.write(f"Planning to ask the AI the following prompt: {prompt}")
-        ai_answer = ask_textually(prompt)
-        st.write(f"AI Answer: {ai_answer}")
+                  f"Answer in a JSON, where the keys are the character names, and the values are a dictionary with two keys: `reasoning` and `is_possible`, where this should be a boolean.")
+        # st.write(f"Planning to ask the AI the following prompt: {prompt}")
+        ai_answer = ask_textually(prompt, force_json=True)
+        # print(f"The type of the answer is: {type(ai_answer)}")
+        print(f"AI Answer: {ai_answer}")
+        possible_characters = [k for k, v in ai_answer.items() if v['is_possible']]
+        st.info(f"Possible Characters: {possible_characters}", icon="🤖")
+        play_voice(f"The characters that are still possible are: {possible_characters}")
+
         assert False, "yalla"
-
-
-
 
 
 

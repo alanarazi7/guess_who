@@ -1,2 +1,2 @@
 
-IS_FULL_DEMO = False
+IS_FULL_DEMO = True
