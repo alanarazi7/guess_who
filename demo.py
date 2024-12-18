@@ -1,5 +1,5 @@
-import random
 import streamlit as st
+from PIL import Image
 
 from openai_calls.speech2text import do_speech_to_text
 from openai_calls.text2speech import play_voice
@@ -17,6 +17,11 @@ characters = [
 
 def main():
     st.title("AI-Powered Guess Who Game 🎤")
+
+    # Load and display the image
+    image_path = "pictures/guess_who_board.jpg"
+    image = Image.open(image_path)
+    st.image(image, caption="Guess Who Board", use_column_width=True)
 
     st.write("**Think of a character from the list below, and I will try to guess it!**")
     st.write("### Characters:")
