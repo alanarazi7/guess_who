@@ -1,16 +1,15 @@
 import random
-from dataclasses import asdict
 
-import pandas as pd
 import streamlit as st
 from PIL import Image
 
 from constants import IS_FULL_DEMO
 from dialogue.introduction import explain_game_and_ask_name
+from dialogue.turn_player import do_player_turn
+
+from dialogue.turn_computer import do_computer_turn
 from game_data.characters import CHARACTERS, characters_to_dataframe
-from openai_calls.speech2text import do_speech_to_text
 from openai_calls.text2speech import play_voice
-from openai_calls.text2text import ask_textually
 from utils import print_ts
 
 
@@ -27,7 +26,7 @@ def main():
 
     # Display characters in a dataframe with emojis
     df = characters_to_dataframe(CHARACTERS)
-    st.dataframe(df)
+    st.table(df)
 
     if st.button("Start Game!"):
         if IS_FULL_DEMO:
@@ -41,78 +40,20 @@ def main():
         # TODO: randomly decide who starts...
         st.write("\n---")
         print_ts("Starting the game!")
-        play_voice("Let's get started! Please ask a question.")
 
-        # Initial dataframe for filtering
-        current_df = pd.DataFrame(CHARACTERS)
-
-
-        ### user asks a question
-        print_ts(f"User asking question...")
-        user_question = do_speech_to_text()
-        print_ts("User asked question")
-        st.info(f"User Question: {user_question}", icon="👤")
-        prompt = (f"You are an AI assistant playing guess-who, and your character is {asdict(assistant_hidden_char)}."
-                  f"The user has asked you: {user_question}. Answer directly YES or NO, without chit-chat.")
-        print_ts("Computer to reason about user question...")
-        print_ts(f"Planning to ask the AI the following prompt: {prompt}")
-        ai_answer = ask_textually(prompt)
-        print_ts("Computer answering user question...")
-        print_ts(f"AI Answer: {ai_answer}")
-        last_word = ai_answer.split()[-1].lower().replace('.', "")
-        if last_word not in ["yes", "no"]:
-            raise ValueError(f"AI answer must be 'Yes' or 'No', but it answered: {ai_answer}")
-        assistant_answer = f"The answer to your question is: {last_word}"
-        st.info(f"AI Answer: {assistant_answer}", icon="🤖")
-        print_ts("Computer replying in voice...")
-        play_voice(assistant_answer)
-        print_ts("Computer replied!...")
-
-
-        ## computer asks a question
-        the_board = current_df.to_dict('records')
-        prompt = (f"You are an AI playing a game of guess-who. You are trying to guess the hidden character of your opponent. So far, the remaining characters in the board are the following ones:"
-                  f"{the_board}. You have to ask a question to the user to try to guess the character, and it should be a yes/no question. What is your question?")
-        # print_ts(f"Planning to ask the user the following prompt: {prompt}")
-        print_ts("Computer to think about q...")
-        ai_question = ask_textually(prompt)
-        print_ts("Computer thought q...")
-        st.info(f"AI Question: {ai_question}", icon="🤖")
-        # print_ts(f"AI Question: {ai_question}")
-        print_ts("Computer ask q in voice...")
-        play_voice(ai_question)
-        print_ts("Computer asked q in voice...")
-        user_answer = do_speech_to_text()
-        print_ts("User answered in voice...")
-        st.info(f"User Answer: {user_answer}", icon="👤")
-        # st.write(f"Planning to ask the AI the following prompt: {prompt}")
-        prompt = (f"You are an AI playing a game of guess who. This is the board you have right now: {the_board}."
-                  f"You asked the user the following question: {ai_question}. The user answered: {user_answer}."
-                  f"We now want to filter all the characters that are still possible given the user's answer. "
-                  f"What are the characters that are still possible?"
-                  f"Answer in a JSON, where the keys are the character names, and the values are a boolean if the character is still possible. "
-                  f"Make sure your JSON includes all the characters, whether they are possible or not.")
-        print_ts("Computer to reason about conditions...")
-        ai_answer = ask_textually(prompt, force_json=True)
-        print_ts("Computer reasoned about conditions...")
-        # print_ts(f"The type of the answer is: {type(ai_answer)}")
-        print_ts(f"AI Answer: {ai_answer}")
-        possible_characters = [k for k, v in ai_answer.items() if v]
-        st.info(f"Possible Characters: {possible_characters}", icon="🤖")
-        play_voice(f"The characters that are still possible are: {possible_characters}")
-
-        # ai_prompt_2 = f"The user said their character is {turn_1.answer}. Ask a second question to guess their character."
-        # question_2 = ask_textually(ai_prompt_2)
-        # turn_2 = PlayerTurn(question=question_2, filter_function=filter_hair_color)
-        # turn_2.ask_question()
-        # turn_2.filter_rows(current_df)
-        # turn_2.update_game()
-        #
-        # # Final Guess
-        # ai_prompt_guess = f"Based on the answers: 1) {turn_1.answer}, 2) {turn_2.answer}, guess the character from the following list: {current_df.to_dict('records')}"
-        # ai_guess = ask_textually(ai_prompt_guess)
-        # play_voice(f"I guess your character is {ai_guess}!")
-        # st.success(f"🎉 AI Guess: {ai_guess}")
+        remaining = list(CHARACTERS)
+        for i in range(5):
+            play_voice("Please ask a question.")
+            do_player_turn(assistant_hidden_char=assistant_hidden_char)
+            print_ts(f"Still have {len(remaining)} remaining characters.")
+            possible_characters = do_computer_turn(CHARACTERS)
+            print_ts(f"There are now {len(possible_characters)} possible characters.")
+            possible_names = {n.lower() for n in possible_characters}
+            remaining = [p for p in remaining if p.name.lower() in possible_names]
+            assert len(remaining) == len(possible_characters), f"{remaining=}, {possible_characters=}"
+            st.info(f"{len(remaining)} Remaining Characters: {[p.name for p in remaining]}", icon="🤖")
+            play_voice(f"I have {len(remaining)} more possible characters!")
+        assert False
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import List
 
 import pandas as pd
@@ -19,6 +19,10 @@ class Person:
 
     def __str__(self):
         return self.name
+
+    @property
+    def data(self):
+        return str(asdict(self))
 
 
 # Predefined characters
