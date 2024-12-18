@@ -1,12 +1,12 @@
 from openai import OpenAI
 
-from constants import OPENAI_API_KEY, OPENAI_TEXT_MODEL
+from openai_calls.constants import OPENAI_API_KEY, OPENAI_TEXT_MODEL
 
 client = OpenAI(
     api_key=OPENAI_API_KEY,
 )
 
-def ask_openai(prompt):
+def ask_textually(prompt):
     response = client.chat.completions.create(
         messages=[
             {
@@ -22,5 +22,5 @@ def ask_openai(prompt):
 
 
 if __name__ == "__main__":
-    answer = ask_openai("Hi, what is your name?")
+    answer = ask_textually("Hi, what is your name?")
     print(answer)
