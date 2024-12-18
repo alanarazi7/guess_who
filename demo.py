@@ -21,7 +21,7 @@ def main():
     # Load and display the image
     image_path = "pictures/guess_who_board.jpg"
     image = Image.open(image_path)
-    st.image(image, caption="Guess Who Board", use_column_width=True)
+    st.image(image, caption="Guess Who Board")
 
     st.write("**Think of a character from the list below, and I will try to guess it!**")
     st.write("### Characters:")
