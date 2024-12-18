@@ -43,15 +43,20 @@ def main():
         print_ts("Starting the game!")
 
         board = Board(remaining=list(CHARACTERS))
-        for i in range(5):
+        while True:
             play_voice("Please ask a question.")
             do_player_turn(assistant_hidden_char=assistant_hidden_char)
             print_ts(f"Still have {len(board)} remaining characters.")
             possible_characters = do_computer_turn(board)
             board.update_board(possible_characters=possible_characters)
-            st.info(f"{len(board)} Remaining Characters: {str([p.name for p in board.remaining])}", icon="🤖")
-            play_voice(f"I have {len(board)} more possible characters!")
-        assert False
+            if len(board) > 1:
+                st.info(f"{len(board)} Remaining Characters: {str([p.name for p in board.remaining])}", icon="🤖")
+                play_voice(f"I have {len(board)} more possible characters!")
+            else:
+                winning_msg = f"AI: I have found your character! It is {board.remaining[0].name}."
+                st.success(winning_msg)
+                play_voice(winning_msg)
+                break
 
 if __name__ == "__main__":
     main()
