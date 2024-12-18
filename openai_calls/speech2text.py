@@ -58,6 +58,7 @@ def do_speech_to_text():
 
     # Clean up the temporary audio file
     os.remove(audio_file_path)
+    return transcription
 
 
 if __name__ == "__main__":
