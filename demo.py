@@ -3,7 +3,6 @@ import random
 import streamlit as st
 from PIL import Image
 
-from constants import IS_FULL_DEMO
 from dialogue.ask_your_card import ask_your_card
 from dialogue.introduction import explain_game_and_ask_name
 from dialogue.turn_player import do_player_turn
