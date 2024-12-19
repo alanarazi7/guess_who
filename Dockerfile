@@ -25,15 +25,20 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 # Update PATH to include Poetry's installation directory
 ENV PATH="/root/.local/bin:$PATH"
 
+# Configure Poetry to create virtual environment inside the project directory
+RUN poetry config virtualenvs.in-project true
+
 # Install Python dependencies using Poetry
-RUN poetry config virtualenvs.in-project true  # This makes Poetry create a virtual environment in the project directory
-RUN poetry install --no-dev  # Install dependencies, skip dev dependencies (optional)
+RUN poetry install --no-dev
 
-# Install Streamlit (if not already installed)
-RUN pip install streamlit
+# Check if Poetry's virtual environment exists and print the environment path
+RUN echo "Poetry virtual environment path:" && poetry env info --path
 
-# Set the entrypoint to run the Streamlit app with the custom options
-ENTRYPOINT ["streamlit", "run", "demo.py", \
+# Check if the proper dependencies (e.g., openai) are installed in the virtual environment
+RUN poetry run python -c "import openai; print('openai is installed')"
+
+# Set the entrypoint to run Streamlit with Poetry's environment
+ENTRYPOINT ["poetry", "run", "streamlit", "run", "demo.py", \
   "--browser.serverAddress=localhost", \
   "--server.enableCORS=false", \
   "--server.enableXsrfProtection=false", \
