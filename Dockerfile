@@ -1,3 +1,6 @@
+# docker build -t guess_who .
+# docker run -p 8080:8080 guess_who
+
 # Use the official Python image as the base
 FROM python:3.12
 
@@ -23,7 +26,8 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="/root/.local/bin:$PATH"
 
 # Install Python dependencies using Poetry
-RUN poetry install
+RUN poetry config virtualenvs.in-project true  # This makes Poetry create a virtual environment in the project directory
+RUN poetry install --no-dev  # Install dependencies, skip dev dependencies (optional)
 
 # Install Streamlit (if not already installed)
 RUN pip install streamlit
