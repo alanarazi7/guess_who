@@ -1,5 +1,3 @@
-# docker build -t guess_who .
-
 # Use the official Python image as the base
 FROM python:3.12
 
@@ -22,7 +20,7 @@ RUN pip install --upgrade pip
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
 # Update PATH to include Poetry's installation directory
-ENV PATH="$HOME/.local/bin:$PATH"
+ENV PATH="/root/.local/bin:$PATH"
 
 # Install Python dependencies using Poetry
 RUN poetry install
