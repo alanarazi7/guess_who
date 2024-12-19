@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Update pip and install poetry
+# Update pip and install Poetry
 echo "Updating pip..."
 pip install --upgrade pip
 
@@ -11,13 +11,19 @@ then
     curl -sSL https://install.python-poetry.org | python3 -
 fi
 
-# Install dependencies using Poetry (you can adjust this for pip if needed)
+# Dynamically add Poetry to PATH (handles different user paths)
+POETRY_BIN_PATH="$HOME/.local/bin"
+if [ -d "$POETRY_BIN_PATH" ]; then
+    export PATH="$POETRY_BIN_PATH:$PATH"
+fi
+
+# Install dependencies using Poetry
 echo "Installing dependencies using Poetry..."
 poetry install
 
-# Alternatively, use pip if you have a requirements.txt
-# pip install -r requirements.txt
-
-# Run Streamlit app
-echo "Starting Streamlit app..."
-streamlit run demo.py
+# Install Streamlit (if not already installed)
+echo "Installing Streamlit..."
+if ! command -v streamlit &> /dev/null
+then
+    pip install streamlit
+fi
