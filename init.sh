@@ -17,6 +17,11 @@ if [ -d "$POETRY_BIN_PATH" ]; then
     export PATH="$POETRY_BIN_PATH:$PATH"
 fi
 
+# Install system dependencies for PyAudio (PortAudio libraries)
+echo "Installing system dependencies for PyAudio..."
+sudo apt-get update
+sudo apt-get install -y portaudio19-dev
+
 # Install dependencies using Poetry
 echo "Installing dependencies using Poetry..."
 poetry install
