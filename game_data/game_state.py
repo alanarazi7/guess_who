@@ -22,6 +22,9 @@ class GameState:
     player_q: Optional[str] = None
     player_q_attempts: int = 0
     ai_turn: bool = False
+    ai_trait: Optional[str] = None
+    ai_q: Optional[str] = None
+    ai_q_user_answer: Optional[str] = None
     game_over: bool = False
 
 def get_game_state() -> GameState:
