@@ -16,25 +16,6 @@ from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
 from utils import print_ts
 
-def do_player_turn(gs: GameState):
-    traits = None
-    for attempt in range(3):
-        traits = user_to_ask_question(gs)
-        if traits:
-            break
-        failure_prompt = f'''The kid name is {gs.player_name}. He asked a question but it was either 
-        unclear, or invalid. Ask gently to ask again.'''
-        tell_prompt(failure_prompt)
-
-    if traits is None:
-        st.error("Sorry, I couldn't understand your question, please try again.")
-        return
-
-    has_traits = gs.ai_char.has_traits(traits)
-    assistant_answer = f"The answer to your question is: {has_traits}"
-    st.info(f"AI Answer: {assistant_answer}", icon="🤖")
-    play_voice(assistant_answer)
-    gs.player_board.update_board(traits, has_traits)
 
 def user_to_ask_question(gs: GameState):
     user_question = record_message(key="user_question")
@@ -98,6 +79,9 @@ def main():
     if gs.pick_character and (not gs.player_char):
         ask_your_card(gs)
 
+    gs.player_char = CHARACTERS[0]
+    gs.player_name = "Alan"
+
     if gs.player_char and not gs.ai_char:
         gs.ai_char = random.choice(CHARACTERS)
 
@@ -105,6 +89,7 @@ def main():
         st.warning(f"Hi {gs.player_name}! Your character is {gs.player_char.name}. Don't forget it!", icon="👤")
         with st.expander("AI's Secret Character"):
             st.info(f"The AI has chosen: {gs.ai_char.name}", icon="🤖")
+        st.markdown("-----------------------------------------------------------")
 
     if not gs.ai_board or not gs.player_board:
         gs.player_board = Board(remaining=list(CHARACTERS))
@@ -119,18 +104,40 @@ def main():
     if not gs.questions_asked:
         return
 
-    # if gs.player_turn:
-    #     do_player_turn(gs)
-    #     if len(gs.player_board.remaining) > 1:
-    #         st.info(gs.player_board.remaining_msg, icon="👤")
-    #         play_voice(f"You have {len(gs.player_board.remaining)} more possible characters!")
-    #     else:
-    #         winning_msg = f"You found my character! It is {gs.player_board.remaining[0].name}."
-    #         st.success(winning_msg)
-    #         play_voice(winning_msg)
-    #         gs.game_over = True
-    # else:
-    #     do_computer_turn(gs)
+    if gs.player_turn:
+        gs.player_q = record_message(key="user_question")
+        if gs.player_q:
+            gs.player_q_attempts += 1
+            traits = get_trait_from_question(gs.player_q)
+            gender_traits = {'male', 'female'}
+            if len(traits) > 1 and set(traits).union(gender_traits):
+                traits = list(set(traits).difference(gender_traits))
+            if DEBUG_MODE:
+                st.info(f"We looked at the following: {gs.ai_char.get_traits(traits)}", icon="🐛")
+            if not traits:
+                failure_prompt = f'''The kid name is {gs.player_name}. He asked a question but it was either 
+                unclear, or invalid. Ask gently to ask again.'''
+                tell_prompt(failure_prompt)
+            else:
+                has_traits = gs.ai_char.has_traits(traits)
+                prompt = f"Paraphrase to an engaging full sentence answer:\n\nQ: {gs.player_q}\n\nA: {has_traits}."
+                tell_prompt(prompt)
+                gs.player_board.update_board(traits, has_traits)
+                gs.player_q_attempts = 0
+            gs.player_q = None
+            if len(gs.player_board.remaining) > 1:
+                st.info(gs.player_board.remaining_msg, icon="👤")
+            else:
+                winning_msg = f"You found my character! It is {gs.player_board.remaining[0].name}."
+                st.success(winning_msg)
+                tell_prompt(f"Tell the player that he guessed the character: {gs.player_board.remaining[0].name}.")
+                gs.game_over = True
+            gs.player_turn = False
+            if st.button("Next Turn 🤖"):
+                gs.ai_turn = True
+    if gs.ai_turn:
+        st.warning("AI's Turn! 🤖")
+    #    do_computer_turn(gs)
     #     if len(gs.ai_board.remaining) > 1:
     #         st.info(gs.ai_board.remaining_msg, icon="🤖")
     #         play_voice(f"I have {len(gs.ai_board.remaining)} more possible characters!")

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List
 
 import streamlit as st
 
@@ -19,6 +19,9 @@ class GameState:
     ai_board: Optional[Board] = None
     questions_asked: bool = False
     player_turn: bool = True
+    player_q: Optional[str] = None
+    player_q_attempts: int = 0
+    ai_turn: bool = False
     game_over: bool = False
 
 def get_game_state() -> GameState:
