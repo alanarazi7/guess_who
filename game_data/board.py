@@ -28,6 +28,10 @@ class Board:
         trait = choice(options)
         return trait
 
+    @property
+    def remaining_msg(self) -> str:
+        return f"{len(self.remaining)} Remaining Characters: {str([p.name for p in self.remaining])}"
+
 
     def __len__(self) -> int:
         return len(self.remaining)

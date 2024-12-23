@@ -56,7 +56,7 @@ def do_player_turn(gs: GameState):
         tell_prompt(failure_prompt)
 
     if traits is None:
-        st.error("Sorry, we couldn't understand your question, please try again.")
+        st.error("Sorry, I couldn't understand your question, please try again.")
         return
 
     has_traits = gs.ai_char.has_traits(traits)
@@ -76,6 +76,34 @@ def user_to_ask_question(gs: GameState):
     if DEBUG_MODE:
         st.info(f"We looked at the following: {gs.ai_char.get_traits(traits)}", icon="🐛")
     return traits
+
+def do_computer_turn(gs: GameState):
+    trait_to_ask = gs.ai_board.get_non_trivial_trait()
+    prompt = (
+        f'''You are an AI playing a game of guess-who. You are trying to guess the hidden character of your opponent.
+        You want to ask a yes or no question about whether the character has the following trait: {trait_to_ask}."''')
+    print_ts(f"Planning to ask the user the following prompt: {prompt}")
+    ai_question = ask_textually(prompt)
+    st.info(f"AI Question: {ai_question}", icon="🤖")
+    play_voice(ai_question)
+    user_answer = record_message(key="user_answer")
+    st.info(f"User Answer: {user_answer}", icon="👤")
+    prompt = (f'''You are an AI playing a game of guess who. You asked a question about a trait, and your opponent answered.
+    You need to decide whether the answer means that the conditions is fulfilled.
+    Your question was {ai_question} and the answer was {user_answer}.
+    Please answer only YES or NO, without other information.''')
+    ai_answer = ask_textually(prompt)
+    print_ts(f"AI Answer: {ai_answer}")
+    if len(ai_answer) > 10:
+        raise ValueError(f"Oops! the answer is too long: {ai_answer}")
+    if 'yes' in ai_answer.lower():
+        has_traits = True
+    elif 'no' in ai_answer.lower():
+        has_traits = False
+    else:
+        raise ValueError(f"Oops! the answer is not YES or NO: {ai_answer}")
+    gs.ai_board.update_board(traits=[trait_to_ask], has_traits=has_traits)
+
 
 def main():
     st.title("Guess Who ❓")
@@ -99,7 +127,6 @@ def main():
     # Confirm the player's chosen character and let the computer choose a character
     if gs.player_char and not gs.ai_char:
         choose_ai_card(gs)
-        st.success(f"Great! The computer and player have both chosen their characters. Let's begin!", icon="🎮")
 
     if gs.ai_char:
         st.warning(f"Your character is {gs.player_char.name}. Don't forget it!", icon="👤")
@@ -111,33 +138,32 @@ def main():
         gs.ai_board = Board(remaining=list(CHARACTERS))
 
     if gs.ai_char and not gs.questions_asked:
+        st.success(f"Great! The computer and player have both chosen their characters. Let's begin!", icon="🎮")
         tell_prompt(f"Invite the player {gs.player_name} to ask his first question, which should be a yes/no one.")
         gs.questions_asked = True
 
     if not gs.questions_asked:
         return
 
-    # while True:
-    #     do_player_turn(gs)
-    #     if len(gs.player_board.remaining) > 1:
-    #         remaining = str([p.name for p in gs.player_board.remaining])
-    #         st.info(f"{len(gs.player_board.remaining)} Remaining Characters: {remaining}", icon="👤")
-    #         play_voice(f"You have {len(gs.player_board.remaining)} more possible characters!")
-    #     else:
-    #         winning_msg = f"You found my character! It is {gs.player_board.remaining[0].name}."
-    #         st.success(winning_msg)
-    #         play_voice(winning_msg)
-    #         break
-    #     break
-    # do_computer_turn(ai_board)
-    # if len(ai_board.remaining) > 1:
-    #     st.info(f"{len(ai_board.remaining)} Remaining Characters: {str([p.name for p in ai_board.remaining])}", icon="🤖")
-    #     play_voice(f"I have {len(ai_board.remaining)} more possible characters!")
-    # else:
-    #     winning_msg = f"AI: I have found your character! It is {ai_board.remaining[0].name}."
-    #     st.success(winning_msg)
-    #     play_voice(winning_msg)
-    #     break
+    while True:
+        do_player_turn(gs)
+        if len(gs.player_board.remaining) > 1:
+            st.info(gs.player_board.remaining_msg, icon="👤")
+            play_voice(f"You have {len(gs.player_board.remaining)} more possible characters!")
+        else:
+            winning_msg = f"You found my character! It is {gs.player_board.remaining[0].name}."
+            st.success(winning_msg)
+            play_voice(winning_msg)
+            break
+        do_computer_turn(gs)
+        if len(gs.ai_board.remaining) > 1:
+            st.info(gs.ai_board.remaining_msg, icon="🤖")
+            play_voice(f"I have {len(gs.ai_board.remaining)} more possible characters!")
+        else:
+            winning_msg = f"AI: I have found your character! It is {gs.ai_board.remaining[0].name}."
+            st.success(winning_msg)
+            play_voice(winning_msg)
+            break
 
 if __name__ == "__main__":
     main()
