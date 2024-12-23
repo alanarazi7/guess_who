@@ -1,7 +1,7 @@
 import streamlit as st
 
 from game_data.board import Board
-from openai_calls.speech2text import do_speech_to_text
+from openai_calls.speech2text import record_message
 from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
 from utils import print_ts
@@ -17,7 +17,7 @@ def do_computer_turn(board: Board):
     ai_question = ask_textually(prompt)
     st.info(f"AI Question: {ai_question}", icon="🤖")
     play_voice(ai_question)
-    user_answer = do_speech_to_text()
+    user_answer = record_message(key="user_answer")
     st.info(f"User Answer: {user_answer}", icon="👤")
     prompt = (f'''You are an AI playing a game of guess who. You asked a question about a trait, and your opponent answered. 
     You need to decide whether the answer means that the conditions is fulfilled.

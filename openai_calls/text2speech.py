@@ -1,5 +1,5 @@
-import pygame
 import openai
+import streamlit as st
 import tempfile
 import os
 
@@ -19,19 +19,13 @@ def play_voice(text):
         temp_audio.write(response.content)
         temp_audio_path = temp_audio.name
 
-    # Play audio using pygame
-    pygame.mixer.init()
-    pygame.mixer.music.load(temp_audio_path)
-    pygame.mixer.music.play()
-    while pygame.mixer.music.get_busy():
-        pass
+    # Play audio using playsound library
+    with open(temp_audio_path, "rb") as audio_file:
+        st.audio(audio_file.read(), format="audio/mp3")
 
     # Clean up the file
-    try:
-        os.remove(temp_audio_path)
-    except:
-        pass
+    os.remove(temp_audio_path)
 
 
 if __name__ == "__main__":
-    play_voice("Hello, how are you?")
+    play_voice("Guess who is a really nice game, I'd love to play!")

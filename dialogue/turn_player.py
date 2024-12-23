@@ -4,7 +4,7 @@ from dialogue.question_to_condition import get_trait_from_question
 from dialogue.system_message import SYS_MSG
 from game_data.board import Board
 from game_data.characters import Person
-from openai_calls.speech2text import do_speech_to_text
+from openai_calls.speech2text import record_message
 from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
 from utils import print_ts
@@ -34,7 +34,7 @@ def do_player_turn(assistant_hidden_char: Person, board: Board, player_name: str
 
 
 def user_to_ask_question(assistant_hidden_char: Person):
-    user_question = do_speech_to_text()
+    user_question = record_message(key="user_question")
     st.info(f"User Question: {user_question}", icon="👤")
     traits = get_trait_from_question(user_question)
     gender_traits = {'male', 'female'}

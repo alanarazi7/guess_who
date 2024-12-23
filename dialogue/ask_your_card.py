@@ -1,6 +1,6 @@
 from dialogue.system_message import SYS_MSG
 from game_data.characters import Person, CHARACTERS
-from openai_calls.speech2text import do_speech_to_text
+from openai_calls.speech2text import record_message
 from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
 from utils import print_ts, normalize_str
@@ -13,7 +13,7 @@ def ask_your_card(user_name) -> Person:
                           f"keep track of the game - be fun about it!")
     ai_funny = ask_textually(secret_card_prompt)
     play_voice(ai_funny)
-    user_choice = do_speech_to_text()
+    user_choice = record_message(key="user_choice")
     print_ts(f"the user chose: {user_choice}")
     understanding_name_prompt = (f"{SYS_MSG}. The possible names are {[p.name for p in CHARACTERS]}."
                                  f"You asked the kid to pick a character and tell it to you. He said: {user_choice}."
