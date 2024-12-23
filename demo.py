@@ -18,12 +18,6 @@ from utils import print_ts
 
 
 
-
-def choose_ai_card(gs: GameState):
-    if not gs.ai_char:
-        gs.ai_char = random.choice(CHARACTERS)
-
-
 def do_player_turn(gs: GameState):
     traits = None
     for attempt in range(3):
@@ -89,23 +83,19 @@ def main():
     display_board_image()
     gs = get_game_state()
 
-    # Start the game when the button is clicked
     if not gs.start_game and st.button("Start Game!"):
         if DEBUG_MODE:
             st.success("Starting the game!", icon="🎉")
         gs.start_game = True
 
-    # Explain the game and ask for the player's name
     if gs.start_game and not gs.player_name:
         explain_game_and_ask_name(gs)
 
-    # Greet the player after receiving their name and ask to pick their secret card
     if gs.player_name and not gs.player_char:
         ask_your_card(gs)
 
-    # Confirm the player's chosen character and let the computer choose a character
     if gs.player_char and not gs.ai_char:
-        choose_ai_card(gs)
+        gs.ai_char = random.choice(CHARACTERS)
 
     if gs.ai_char:
         st.warning(f"Hi {gs.player_name}! Your character is {gs.player_char.name}. Don't forget it!", icon="👤")
