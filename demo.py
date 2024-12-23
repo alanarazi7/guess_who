@@ -4,10 +4,10 @@ from typing import Optional
 
 import streamlit as st
 
-from dialogue.turn_player import do_player_turn
+# from dialogue.turn_player import do_player_turn
 
-from dialogue.turn_computer import do_computer_turn
-from game_data.board import Board
+# from dialogue.turn_computer import do_computer_turn
+# from game_data.board import Board
 from game_data.characters import CHARACTERS, Person
 from game_data.image import display_board_image
 from openai_calls.speech2text import record_message
@@ -93,24 +93,18 @@ def main():
     if gs.start_game and not gs.player_name:
         explain_game_and_ask_name(gs)
 
-    # Greet the player after receiving their name
-    if gs.player_name:
-        st.success(f"Nice to meet you, {gs.player_name}!", icon="👋")
-
-    # Ask the player to pick their secret card
+    # Greet the player after receiving their name and ask to pick their secret card
     if gs.player_name and not gs.player_char:
+        st.success(f"Nice to meet you, {gs.player_name}!", icon="👋")
         ask_your_card(gs)
 
     # Confirm the chosen character
     if gs.player_char:
         st.success(f"Great {gs.player_name}! You've picked {gs.player_char.name} as your secret character!", icon="🤫")
 
-    # player_hidden_char = ask_your_card(gs)
-
     # assistant_hidden_char = random.choice(CHARACTERS)
-
-    # # let's display his choice
     # st.info(f"I chosen {assistant_hidden_char}. Try to guess who it is", icon="🤖")
+
     # # Start Game
     # # TODO: randomly decide who starts...
     # st.write("\n---")

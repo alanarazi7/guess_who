@@ -1,7 +1,6 @@
 import streamlit as st
 
 from dialogue.question_to_condition import get_trait_from_question
-from dialogue.system_message import SYS_MSG
 from game_data.board import Board
 from game_data.characters import Person
 from openai_calls.speech2text import record_message
