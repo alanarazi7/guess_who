@@ -12,6 +12,7 @@ openai = "^1.58.1"
 typing-extensions = "^4.12.2"
 pygame = "^2.6.1"
 soundfile = "^0.12.1"
+streamlit-webrtc = "^0.47.9"
 
 
 

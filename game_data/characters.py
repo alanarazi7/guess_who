@@ -119,5 +119,3 @@ CHARACTERS: List[Person] = [
     Person(name="Emma", red_hair=True, clean_shaved_face=True, blushing_cheeks=True, lipstick=True,
            parting=True, full_head_of_hair=True, female=True, green_eyes=True, thin_lips=True, freckles=True),
 ]
-
-print(TRAITS)

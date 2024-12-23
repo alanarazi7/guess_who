@@ -1,19 +1,33 @@
-import openai
-import sounddevice as sd
-import soundfile as sf
-import os
+import tempfile
+from typing import Optional
 
-from openai_calls.constants import OPENAI_API_KEY
+import openai
+import os
+import streamlit as st
+
+from audio_recorder_streamlit import audio_recorder
+
+from openai_calls.constants import OPENAI_API_KEY, DEBUG_MODE
 
 openai.api_key = OPENAI_API_KEY
 
-def record_audio(duration=5, filename="output.wav"):
-    print("Recording... Speak now!")
-    audio = sd.rec(int(duration * 44100), samplerate=44100, channels=1, dtype='int16')
-    sd.wait()  # Wait for the recording to finish
-    print("Recording complete!")
-    sf.write(filename, audio, 44100)
-    return filename
+def record_message(key: str) -> Optional[str]:
+    audio_bytes = audio_recorder(key=f"audio_recorder_{key}")
+    if not audio_bytes:
+        return None
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
+        temp_audio.write(audio_bytes)
+        temp_audio_path = temp_audio.name
+        transcription = transcribe_audio(temp_audio_path)
+        os.remove(temp_audio_path)
+
+    if transcription:
+        if DEBUG_MODE:
+            st.info(f"Your Answer: {transcription}", icon="🎤")
+    else:
+        st.error("Transcription failed. Please try again.")
+
+    return transcription
 
 def transcribe_audio(file_path):
     # Use Whisper API for transcription
@@ -25,18 +39,3 @@ def transcribe_audio(file_path):
         )
     return transcript.text
 
-
-def do_speech_to_text(seconds: int = 4):
-    # Record and transcribe audio
-    audio_file_path = record_audio(duration=seconds)
-    transcription = transcribe_audio(audio_file_path)
-
-    print("Transcription:", transcription)
-
-    # Clean up the temporary audio file
-    os.remove(audio_file_path)
-    return transcription
-
-
-if __name__ == "__main__":
-    do_speech_to_text()
