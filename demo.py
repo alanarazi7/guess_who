@@ -6,7 +6,7 @@ from dialogue.ask_card import ask_your_card
 from dialogue.introduction import explain_game_and_ask_name
 from dialogue.question_to_condition import get_trait_from_question
 from game_data.board import Board
-from game_data.characters import CHARACTERS
+from game_data.characters import CHARACTERS, Person
 from game_data.game_state import GameState, get_game_state
 from game_data.image import display_board_image
 from openai_calls.constants import DEBUG_MODE
@@ -15,8 +15,6 @@ from openai_calls.speech2text import record_message
 from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
 from utils import print_ts
-
-
 
 def do_player_turn(gs: GameState):
     traits = None
@@ -53,18 +51,21 @@ def user_to_ask_question(gs: GameState):
 def do_computer_turn(gs: GameState):
     trait_to_ask = gs.ai_board.get_non_trivial_trait()
     prompt = (
-        f'''You are an AI playing a game of guess-who. You are trying to guess the hidden character of your opponent.
-        You want to ask a yes or no question about whether the character has the following trait: {trait_to_ask}."''')
+        f"""You are an AI playing a game of Guess Who. You are trying to guess the hidden character of your opponent.\n
+        You want to ask a yes or no question about whether the character has the following trait: {trait_to_ask}."""
+    )
     print_ts(f"Planning to ask the user the following prompt: {prompt}")
     ai_question = ask_textually(prompt)
     st.info(f"AI Question: {ai_question}", icon="🤖")
     play_voice(ai_question)
     user_answer = record_message(key="user_answer")
     st.info(f"User Answer: {user_answer}", icon="👤")
-    prompt = (f'''You are an AI playing a game of guess who. You asked a question about a trait, and your opponent answered.
-    You need to decide whether the answer means that the conditions is fulfilled.
-    Your question was {ai_question} and the answer was {user_answer}.
-    Please answer only YES or NO, without other information.''')
+    prompt = (
+        f"""You are an AI playing a game of Guess Who. You asked a question about a trait, and your opponent answered.\n
+        You need to decide whether the answer means the condition is fulfilled.\n
+        Your question was {ai_question} and the answer was {user_answer}.\n
+        Please answer only YES or NO, without other information."""
+    )
     ai_answer = ask_textually(prompt)
     print_ts(f"AI Answer: {ai_answer}")
     if len(ai_answer) > 10:
@@ -83,15 +84,17 @@ def main():
     display_board_image()
     gs = get_game_state()
 
-    if not gs.start_game and st.button("Start Game!"):
-        if DEBUG_MODE:
-            st.success("Starting the game!", icon="🎉")
+    if (not gs.start_game) and st.button("Start Game! 🎉"):
         gs.start_game = True
 
     if gs.start_game and not gs.player_name:
         explain_game_and_ask_name(gs)
 
-    if gs.player_name and not gs.player_char:
+    if gs.player_name and not gs.pick_character:
+        if st.button("Pick Your Character 🎭"):
+            gs.pick_character = True
+
+    if gs.pick_character and (not gs.player_char):
         ask_your_card(gs)
 
     if gs.player_char and not gs.ai_char:
@@ -102,18 +105,20 @@ def main():
         with st.expander("AI's Secret Character"):
             st.info(f"The AI has chosen: {gs.ai_char.name}", icon="🤖")
 
-    if (not gs.ai_board) and (not gs.player_board):
+    if not gs.ai_board or not gs.player_board:
         gs.player_board = Board(remaining=list(CHARACTERS))
         gs.ai_board = Board(remaining=list(CHARACTERS))
 
-    if gs.ai_char and not gs.questions_asked:
-        tell_prompt(f"Invite the player {gs.player_name} to ask his first question, which should be a yes/no one.")
-        gs.questions_asked = True
+    if gs.ai_char and (not gs.questions_asked):
+        if st.button("Ask Question ▶️"):
+            q = f"Invite the player {gs.player_name} to ask their first question, which should be a yes/no one."
+            tell_prompt(q)
+            gs.questions_asked = True
 
-    if not gs.questions_asked:
-        return
+    if gs.questions_asked:
+        st.error("The game is not yet implemented. Please come back later.", icon="⚠️")
 
-    while True:
+    if gs.player_turn:
         do_player_turn(gs)
         if len(gs.player_board.remaining) > 1:
             st.info(gs.player_board.remaining_msg, icon="👤")
@@ -122,7 +127,8 @@ def main():
             winning_msg = f"You found my character! It is {gs.player_board.remaining[0].name}."
             st.success(winning_msg)
             play_voice(winning_msg)
-            break
+            gs.game_over = True
+    else:
         do_computer_turn(gs)
         if len(gs.ai_board.remaining) > 1:
             st.info(gs.ai_board.remaining_msg, icon="🤖")
@@ -131,7 +137,10 @@ def main():
             winning_msg = f"AI: I have found your character! It is {gs.ai_board.remaining[0].name}."
             st.success(winning_msg)
             play_voice(winning_msg)
-            break
+            gs.game_over = True
+
+    if gs.game_over:
+        st.warning("The game is over. Please refresh the page to play again.", icon="🏁")
 
 if __name__ == "__main__":
     main()

@@ -10,8 +10,6 @@ from utils import normalize_str
 
 
 def ask_your_card(gs: GameState):
-    if DEBUG_MODE:
-        st.success(f"Nice to meet you, {gs.player_name}!", icon="👋")
     secret_card_prompt = f'''The player's name is {gs.player_name}. Ask him to pick a character from game board in 
     front of him. Mention you'll use to keep track on the game, and joke about you not going to cheat or peak.'''
     tell_prompt(secret_card_prompt)
