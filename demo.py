@@ -7,6 +7,7 @@ import streamlit as st
 from dialogue.question_to_condition import get_trait_from_question
 from game_data.board import Board
 from game_data.characters import CHARACTERS, Person
+from game_data.game_state import GameState, get_game_state
 from game_data.image import display_board_image
 from openai_calls.constants import DEBUG_MODE
 from openai_calls.prompt2speech import tell_prompt
@@ -16,49 +17,17 @@ from openai_calls.text2text import ask_textually
 from utils import print_ts, normalize_str
 
 
-@dataclass
-class GameState:
-    start_game: bool = False
-    ai_intro: bool = False
-    player_name: Optional[str] = None
-    player_char: Optional[Person] = None
-    ai_char: Optional[Person] = None
-    player_board: Optional[Board] = None
-    ai_board: Optional[Board] = None
-    questions_asked: bool = False
 
 SYS_MSG = '''You are an AI playing guess-who with a small kid. In your answer, try to be fun, encouraging and engaging. 
 In addition, try not to be super elaborated - be concise and clear.'''
 
-def get_game_state() -> GameState:
-    if "game_state" not in st.session_state:
-        st.session_state.game_state = GameState()
-    return st.session_state.game_state
+
 
 
 def start_game(gs: GameState):
     if st.button("Start Game!"):
         st.success("Starting the game!", icon="🎉")
         gs.start_game = True
-
-
-def explain_game_and_ask_name(gs: GameState):
-    opening_prompt = (f"{SYS_MSG}. Welcome the kid to the game, and explain in one sentence what are the rules of "
-                      f"Guess Who. End by asking the kid's name")
-
-    # Generate AI introduction once
-    if not gs.ai_intro:
-        tell_prompt(opening_prompt)
-        gs.ai_intro = True
-
-    # Record player's name if not already done
-    if not gs.player_name:
-        player_name = record_message(key="player_name")
-        if player_name:
-            name_recognition_prompt = (f"You asked for a kid's name, and he said it's: {player_name}."
-                                       f"Confirm the name. Output a JSON with the key `name` and the value being the name")
-            ai_name_recognition = ask_textually(name_recognition_prompt, force_json=True)
-            gs.player_name = ai_name_recognition['name']
 
 
 def ask_your_card(gs: GameState):
