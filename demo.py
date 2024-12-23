@@ -1,23 +1,58 @@
 import random
 from dataclasses import dataclass
+from typing import Optional
 
 import streamlit as st
 
 from dialogue.ask_your_card import ask_your_card
-from dialogue.introduction import explain_game_and_ask_name
 from dialogue.system_message import SYS_MSG
 from dialogue.turn_player import do_player_turn
 
 from dialogue.turn_computer import do_computer_turn
 from game_data.board import Board
 from game_data.characters import CHARACTERS
-from game_data.game_state import GameState, get_game_state, start_game
 from game_data.image import display_board_image
 from openai_calls.speech2text import record_message
 from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
 from utils import print_ts
 
+@dataclass
+class GameState:
+    start_game: bool = False
+    ai_intro: Optional[str] = None
+    player_name: Optional[str] = None
+
+
+
+def get_game_state() -> GameState:
+    if "game_state" not in st.session_state:
+        st.session_state.game_state = GameState()
+    return st.session_state.game_state
+
+
+def start_game(gs: GameState):
+    if st.button("Start Game!"):
+        st.info("Starting the game!", icon="🎉")
+        gs.start_game = True
+
+def explain_game_and_ask_name(gs: GameState):
+    opening_prompt = (f"{SYS_MSG}. Welcome the kid to the game, and explain in one sentence what are the rules of "
+                      f"Guess Who. End by asking the kid's name")
+
+    # Generate AI introduction once
+    if not gs.ai_intro:
+        gs.ai_intro = ask_textually(opening_prompt)
+        play_voice(gs.ai_intro)
+
+    # Record player's name if not already done
+    if not gs.player_name:
+        player_name = record_message(key="player_name")
+        if player_name:
+            name_recognition_prompt = (f"You asked for a kid's name, and he said it's: {player_name}."
+                                       f"Confirm the name. Output a JSON with the key `name` and the value being the name")
+            ai_name_recognition = ask_textually(name_recognition_prompt, force_json=True)
+            gs.player_name = ai_name_recognition['name']
 
 
 def main():
@@ -25,12 +60,15 @@ def main():
     display_board_image()
     gs = get_game_state()
 
+    # Start the game when the button is clicked
     if not gs.start_game:
         start_game(gs)
 
+    # Explain the game and ask for the player's name
     if gs.start_game and not gs.player_name:
         explain_game_and_ask_name(gs)
 
+    # Greet the player after receiving their name
     if gs.player_name:
         st.success(f"Nice to meet you, {gs.player_name}!", icon="👋")
         st.warning("Implement next step!")
