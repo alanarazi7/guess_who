@@ -88,8 +88,6 @@ def ask_your_card(gs: GameState):
 def choose_ai_card(gs: GameState):
     if not gs.ai_char:
         gs.ai_char = random.choice(CHARACTERS)
-        with st.expander("AI's Secret Character"):
-            st.success(f"The AI has chosen: {gs.ai_char.name}", icon="🕵")
 
 
 def main():
@@ -114,6 +112,11 @@ def main():
     if gs.player_char and not gs.ai_char:
         choose_ai_card(gs)
         st.success(f"Great! The computer and player have both chosen their characters. Let's begin!", icon="🎮")
+
+    if gs.ai_char:
+        st.warning(f"Your character is {gs.player_char.name}. Don't forget it!", icon="👤")
+        with st.expander("AI's Secret Character"):
+            st.success(f"The AI has chosen: {gs.ai_char.name}", icon="🕵")
 
     # # Start Game
     # # TODO: randomly decide who starts...
