@@ -26,6 +26,7 @@ class GameState:
     ai_q: Optional[str] = None
     ai_q_user_answer: Optional[str] = None
     game_over: bool = False
+    last_turn_was_human: bool = False
 
 def get_game_state() -> GameState:
     if "game_state" not in st.session_state:

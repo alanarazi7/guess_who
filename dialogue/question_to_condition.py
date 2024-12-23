@@ -2,7 +2,6 @@ from typing import List
 
 from game_data.characters import TRAITS
 from openai_calls.text2text import ask_textually
-from utils import print_ts
 
 template = """Consider that we are playing the game of "Guess Who", and that a character has the following set of traits {traits}.
 The user now asked a question that should be mapped to one (or more) of the columns. 
@@ -42,7 +41,6 @@ Answer:
 def get_trait_from_question(question: str) -> List[str]:
     prompt = template.replace('{traits}', str(TRAITS)).replace('{question}', question)
     answer = ask_textually(prompt, force_json=True)
-    print_ts(f"The answer we got is: {answer}")
     if not set(answer) == (expected_keys := {'column'}):
         raise KeyError(f"Oops! expected {expected_keys} but got {answer}")
     cols = answer['column']

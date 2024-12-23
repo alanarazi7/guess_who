@@ -11,8 +11,7 @@ def get_ai_q(gs: GameState) -> str:
         f"""You are an AI playing a game of Guess Who. You are trying to guess the hidden character of your opponent.\n
         You want to ask a yes or no question about whether the character has the following trait: {gs.ai_trait}."""
     )
-    ai_question = ask_textually(prompt)
-    return ai_question
+    gs.ai_q = ask_textually(prompt)
 
 
 def parse_player_answer_to_ai_q(gs: GameState):
@@ -40,6 +39,7 @@ def reset_ai_turn_data(gs: GameState):
     gs.ai_q_user_answer = None
     gs.ai_q = None
     gs.ai_turn = False
+    gs.last_turn_was_human = False
 
 def ai_won(gs: GameState):
     player_char = gs.ai_board.remaining[0].name

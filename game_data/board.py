@@ -3,7 +3,6 @@ from secrets import choice
 from typing import List
 
 from game_data.characters import Person, TRAITS
-from utils import print_ts
 
 
 @dataclass
@@ -12,7 +11,6 @@ class Board:
 
 
     def update_board(self, traits: List[str], has_traits: bool):
-        print_ts(f"There are now {len(self)} possible characters.")
         new_remaining = []
         for p in self.remaining:
             if p.has_traits(traits) == has_traits:

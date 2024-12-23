@@ -19,6 +19,7 @@ def declare_invalid_q(gs: GameState):
     failure_prompt = f'''The kid name is {gs.player_name}. He asked a question but it was either 
     unclear, or invalid. Ask gently to ask again.'''
     tell_prompt(failure_prompt)
+    gs.player_q = None
 
 
 def extract_traits_from_q(gs: GameState) -> List[str]:

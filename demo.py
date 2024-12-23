@@ -60,34 +60,35 @@ def main():
         gs.player_q = record_message(key="user_question")
         if gs.player_q:
             traits = extract_traits_from_q(gs)
-            if traits:
-                update_after_player_q(gs, traits)
-            else:
-                declare_invalid_q(gs)
-            gs.player_q = None
+            if not traits:
+                return declare_invalid_q(gs)
+            update_after_player_q(gs, traits)
             if len(gs.player_board.remaining) > 1:
                 st.info(gs.player_board.remaining_msg, icon="👤")
             else:
                 user_won(gs)
             gs.player_turn = False
-            if st.button("Next Turn 🤖"):
-                gs.ai_turn = True
+            gs.last_turn_was_human = True
+
+    if gs.last_turn_was_human and (not gs.player_turn) and (not gs.ai_turn) and st.button("Next Turn 🤖"):
+        gs.ai_turn = True
 
     if gs.ai_turn:
-        gs.ai_q = get_ai_q(gs)
+        if not gs.ai_trait:
+            get_ai_q(gs)
         if gs.ai_q:
             play_voice(gs.ai_q)
             gs.ai_q_user_answer = record_message(key="user_answer")
-            if gs.ai_q_user_answer:
-                parse_player_answer_to_ai_q(gs)
+        if gs.ai_q_user_answer:
+            parse_player_answer_to_ai_q(gs)
             reset_ai_turn_data(gs)
-        if len(gs.ai_board.remaining) > 1:
-            st.info(gs.ai_board.remaining_msg, icon="🤖")
-            play_voice(f"I have {len(gs.ai_board.remaining)} more possible characters!")
-        else:
-            ai_won(gs)
-        if st.button("Next Turn 👤"):
-            gs.player_turn = True
+            if len(gs.ai_board.remaining) > 1:
+                st.info(gs.ai_board.remaining_msg, icon="🤖")
+            else:
+                ai_won(gs)
+
+    if (not gs.last_turn_was_human) and (not gs.ai_turn) and (not gs.player_turn) and st.button("Next Turn 👤"):
+        gs.player_turn = True
 
     if gs.game_over:
         st.warning("The game is over. Please refresh the page to play again.", icon="🏁")
