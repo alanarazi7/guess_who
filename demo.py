@@ -4,7 +4,6 @@ from typing import Optional
 
 import streamlit as st
 
-from dialogue.system_message import SYS_MSG
 from dialogue.turn_player import do_player_turn
 
 from dialogue.turn_computer import do_computer_turn
@@ -22,8 +21,10 @@ class GameState:
     start_game: bool = False
     ai_intro: Optional[str] = None
     player_name: Optional[str] = None
-    player_hidden_char: Optional[Person] = None
+    player_char: Optional[Person] = None
 
+SYS_MSG = '''You are an AI playing guess-who with a small kid. In your answer, try to be fun, encouraging and engaging. 
+In addition, try not to be super elaborated - be concise and clear.'''
 
 def get_game_state() -> GameState:
     if "game_state" not in st.session_state:
@@ -50,36 +51,33 @@ def explain_game_and_ask_name(gs: GameState):
     if not gs.player_name:
         player_name = record_message(key="player_name")
         if player_name:
-            name_recognition_prompt = (f"You asked for a kid's name, and he said it's: {player_name}."
-                                       f"Confirm the name. Output a JSON with the key `name` and the value being the name")
-            ai_name_recognition = ask_textually(name_recognition_prompt, force_json=True)
+            recognition_prompt = f'''You asked for a kid's name, and he said it's: {player_name}. 
+            Confirm the name. Output a JSON with the key `name` and the value being the name'''
+            ai_name_recognition = ask_textually(recognition_prompt, force_json=True)
             gs.player_name = ai_name_recognition['name']
 
 
 def ask_your_card(gs: GameState):
-    if not gs.player_hidden_char:
-        secret_card_prompt = (f"{SYS_MSG}. The kid's name is {gs.player_name}. "
-                              f"Ask him/her to pick a character from the options on the game board in front of him. "
-                              f"Clarify that although he's telling it to you, you'll keep it a secret and only will use it to "
-                              f"keep track of the game - be fun about it!")
+    if not gs.player_char:
+        secret_card_prompt = f'''{SYS_MSG}. The kid's name is {gs.player_name}. Ask him/her to pick a character from 
+        the options on the game board in front of him. Clarify that although he's telling it to you, you'll keep it a 
+        secret and only will use it to keep track of the game - be fun about it!'''
         ai_funny = ask_textually(secret_card_prompt)
         play_voice(ai_funny)
-
         user_choice = record_message(key="user_choice")
         if user_choice:
             print_ts(f"The user chose: {user_choice}")
-            understanding_name_prompt = (f"{SYS_MSG}. The possible names are {[p.name for p in CHARACTERS]}. "
-                                         f"You asked the kid to pick a character and tell it to you. He said: {user_choice}. "
-                                         f"Confirm the name of the picked character. Output a JSON with the key `name` and the value being the name")
+            understanding_name_prompt = f'''{SYS_MSG}. The possible names are {[p.name for p in CHARACTERS]}. You asked 
+            the kid to pick a character and tell it to you. He said: {user_choice}. Confirm the name of the picked 
+            character. Output a JSON with the key `name` and the value being the name'''
             ai_understanding_name = ask_textually(understanding_name_prompt, force_json=True)
-            print_ts(f"Tried to parse, the user chose: {ai_understanding_name}")
-
             candidates = [p for p in CHARACTERS if
                           normalize_str(p.name) == normalize_str(ai_understanding_name['name'])]
             if len(candidates) == 1:
-                gs.player_hidden_char = candidates[0]
+                gs.player_char = candidates[0]
             else:
-                st.error("Oops! The character name could not be uniquely identified. Please try again.", icon="⚠")
+                # TODO: we could ask the user to repeat the name
+                st.error("Oops! The character name could not be uniquely identified. Please try again.", icon="⚠️")
 
 
 def main():
@@ -100,12 +98,12 @@ def main():
         st.success(f"Nice to meet you, {gs.player_name}!", icon="👋")
 
     # Ask the player to pick their secret card
-    if gs.player_name and not gs.player_hidden_char:
+    if gs.player_name and not gs.player_char:
         ask_your_card(gs)
 
     # Confirm the chosen character
-    if gs.player_hidden_char:
-        st.info(f"Great! You've picked {gs.player_hidden_char.name} as your secret character!", icon="😉")
+    if gs.player_char:
+        st.success(f"Great {gs.player_name}! You've picked {gs.player_char.name} as your secret character!", icon="🤫")
 
     # player_hidden_char = ask_your_card(gs)
 
@@ -113,7 +111,6 @@ def main():
 
     # # let's display his choice
     # st.info(f"I chosen {assistant_hidden_char}. Try to guess who it is", icon="🤖")
-    # st.info(f"You picked {player_hidden_char}, but don't worry, I won't cheat!", icon="🤫")
     # # Start Game
     # # TODO: randomly decide who starts...
     # st.write("\n---")
