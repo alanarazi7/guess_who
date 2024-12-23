@@ -4,6 +4,7 @@ from typing import Optional
 
 import streamlit as st
 
+from dialogue.introduction import explain_game_and_ask_name
 from dialogue.question_to_condition import get_trait_from_question
 from game_data.board import Board
 from game_data.characters import CHARACTERS, Person
@@ -18,21 +19,9 @@ from utils import print_ts, normalize_str
 
 
 
-SYS_MSG = '''You are an AI playing guess-who with a small kid. In your answer, try to be fun, encouraging and engaging. 
-In addition, try not to be super elaborated - be concise and clear.'''
-
-
-
-
-def start_game(gs: GameState):
-    if st.button("Start Game!"):
-        st.success("Starting the game!", icon="🎉")
-        gs.start_game = True
-
-
 def ask_your_card(gs: GameState):
     if not gs.player_char:
-        secret_card_prompt = (f"{SYS_MSG}. The kid's name is {gs.player_name}. "
+        secret_card_prompt = (f"The kid's name is {gs.player_name}. "
                               f"Ask him/her to pick a character from the options on the game board in front of him. "
                               f"Clarify that although he's telling it to you, you'll keep it a secret and only will use it to "
                               f"keep track of the game - be fun about it!")
@@ -41,7 +30,7 @@ def ask_your_card(gs: GameState):
         user_choice = record_message(key="user_choice")
         if user_choice:
             print_ts(f"The user chose: {user_choice}")
-            understanding_name_prompt = (f"{SYS_MSG}. The possible names are {[p.name for p in CHARACTERS]}. "
+            understanding_name_prompt = (f"The possible names are {[p.name for p in CHARACTERS]}. "
                                          f"You asked the kid to pick a character and tell it to you. He said: {user_choice}. "
                                          f"Confirm the name of the picked character. Output a JSON with the key `name` and the value being the name")
             ai_understanding_name = ask_textually(understanding_name_prompt, force_json=True)
@@ -98,8 +87,9 @@ def main():
     gs = get_game_state()
 
     # Start the game when the button is clicked
-    if not gs.start_game:
-        start_game(gs)
+    if not gs.start_game and st.button("Start Game!"):
+        st.success("Starting the game!", icon="🎉")
+        gs.start_game = True
 
     # Explain the game and ask for the player's name
     if gs.start_game and not gs.player_name:
@@ -125,7 +115,7 @@ def main():
         gs.ai_board = Board(remaining=list(CHARACTERS))
 
     if gs.ai_char and not gs.questions_asked:
-        tell_prompt(f"{SYS_MSG}. Invite {gs.player_name} to ask his first question, which should be a yes/no one.")
+        tell_prompt(f"Invite the player {gs.player_name} to ask his first question, which should be a yes/no one.")
         gs.questions_asked = True
     #
     # # Game loop

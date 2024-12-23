@@ -8,10 +8,15 @@ client = OpenAI(
     api_key=OPENAI_API_KEY,
 )
 
+SYS_MSG = '''You are an AI playing guess-who with a small kid. In your answer, try to be fun, encouraging and engaging.
+Your answers should always be concise and clear.'''
+
+
 def ask_textually(prompt, force_json: bool = False):
     if force_json:
         prompt += f"\n\nAnswer in JSON format."
-    kwargs = {'messages': [{'role': 'user', 'content': prompt}], 'model': OPENAI_TEXT_MODEL}
+    messages = [{'role': 'system', 'content': SYS_MSG}, {'role': 'user', 'content': prompt}]
+    kwargs = {'messages': messages, 'model': OPENAI_TEXT_MODEL}
     if force_json:
         kwargs['response_format'] = {"type": "json_object"}
     response = client.chat.completions.create(**kwargs)
@@ -20,11 +25,3 @@ def ask_textually(prompt, force_json: bool = False):
     if force_json:
         completion = json.loads(completion)
     return completion
-
-
-
-if __name__ == "__main__":
-    answer = ask_textually("Hi, what is your name?")
-    print(answer)
-    answer = ask_textually("Hi, what is your name?", force_json=True)
-    print(answer)
