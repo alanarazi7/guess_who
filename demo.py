@@ -36,7 +36,7 @@ def get_game_state() -> GameState:
 
 def start_game(gs: GameState):
     if st.button("Start Game!"):
-        st.info("Starting the game!", icon="🎉")
+        st.success("Starting the game!", icon="🎉")
         gs.start_game = True
 
 
@@ -89,7 +89,7 @@ def choose_ai_card(gs: GameState):
     if not gs.ai_char:
         gs.ai_char = random.choice(CHARACTERS)
         with st.expander("AI's Secret Character"):
-            st.info(f"The AI has chosen: {gs.ai_char.name}", icon="🕵")
+            st.success(f"The AI has chosen: {gs.ai_char.name}", icon="🕵")
 
 
 def main():
