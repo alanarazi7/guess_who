@@ -10,9 +10,7 @@ python = "^3.12"
 streamlit = "^1.41.1"
 openai = "^1.58.1"
 typing-extensions = "^4.12.2"
-pygame = "^2.6.1"
-soundfile = "^0.12.1"
-streamlit-webrtc = "^0.47.9"
+audio-recorder-streamlit = "^0.0.10"
 
 
 
