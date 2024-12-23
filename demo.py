@@ -4,30 +4,17 @@ import streamlit as st
 
 from dialogue.ask_card import ask_your_card
 from dialogue.introduction import explain_game_and_ask_name
-from dialogue.question_to_condition import get_trait_from_question
+from dialogue.turn_player import extract_traits_from_q, declare_invalid_q, update_after_player_q, user_won
 from game_data.board import Board
-from game_data.characters import CHARACTERS, Person
+from game_data.characters import CHARACTERS
 from game_data.game_state import GameState, get_game_state
 from game_data.image import display_board_image
-from openai_calls.constants import DEBUG_MODE
 from openai_calls.prompt2speech import tell_prompt
 from openai_calls.speech2text import record_message
 from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
 from utils import print_ts
 
-
-def user_to_ask_question(gs: GameState):
-    user_question = record_message(key="user_question")
-    st.info(f"User Question: {user_question}", icon="👤")
-    traits = get_trait_from_question(user_question)
-    gender_traits = {'male', 'female'}
-    if len(traits) > 1 and set(traits).union(gender_traits):
-        traits = list(set(traits).difference(gender_traits))
-        print_ts(f"Removing the gender traits, got now {traits}")
-    if DEBUG_MODE:
-        st.info(f"We looked at the following: {gs.ai_char.get_traits(traits)}", icon="🐛")
-    return traits
 
 def do_computer_turn(gs: GameState):
     trait_to_ask = gs.ai_board.get_non_trivial_trait()
@@ -79,9 +66,6 @@ def main():
     if gs.pick_character and (not gs.player_char):
         ask_your_card(gs)
 
-    gs.player_char = CHARACTERS[0]
-    gs.player_name = "Alan"
-
     if gs.player_char and not gs.ai_char:
         gs.ai_char = random.choice(CHARACTERS)
 
@@ -107,34 +91,21 @@ def main():
     if gs.player_turn:
         gs.player_q = record_message(key="user_question")
         if gs.player_q:
-            gs.player_q_attempts += 1
-            traits = get_trait_from_question(gs.player_q)
-            gender_traits = {'male', 'female'}
-            if len(traits) > 1 and set(traits).union(gender_traits):
-                traits = list(set(traits).difference(gender_traits))
-            if DEBUG_MODE:
-                st.info(f"We looked at the following: {gs.ai_char.get_traits(traits)}", icon="🐛")
-            if not traits:
-                failure_prompt = f'''The kid name is {gs.player_name}. He asked a question but it was either 
-                unclear, or invalid. Ask gently to ask again.'''
-                tell_prompt(failure_prompt)
+            traits = extract_traits_from_q(gs)
+            if traits:
+                update_after_player_q(gs, traits)
             else:
-                has_traits = gs.ai_char.has_traits(traits)
-                prompt = f"Paraphrase to an engaging full sentence answer:\n\nQ: {gs.player_q}\n\nA: {has_traits}."
-                tell_prompt(prompt)
-                gs.player_board.update_board(traits, has_traits)
-                gs.player_q_attempts = 0
+                declare_invalid_q(gs)
             gs.player_q = None
             if len(gs.player_board.remaining) > 1:
                 st.info(gs.player_board.remaining_msg, icon="👤")
             else:
-                winning_msg = f"You found my character! It is {gs.player_board.remaining[0].name}."
-                st.success(winning_msg)
-                tell_prompt(f"Tell the player that he guessed the character: {gs.player_board.remaining[0].name}.")
-                gs.game_over = True
+                user_won(gs)
             gs.player_turn = False
             if st.button("Next Turn 🤖"):
                 gs.ai_turn = True
+
+
     if gs.ai_turn:
         st.warning("AI's Turn! 🤖")
     #    do_computer_turn(gs)
