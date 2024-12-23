@@ -1,5 +1,4 @@
 import tempfile
-from io import BytesIO
 from typing import Optional
 
 import openai
@@ -8,7 +7,7 @@ import streamlit as st
 
 from audio_recorder_streamlit import audio_recorder
 
-from openai_calls.constants import OPENAI_API_KEY
+from openai_calls.constants import OPENAI_API_KEY, DEBUG_MODE
 
 openai.api_key = OPENAI_API_KEY
 
@@ -16,9 +15,6 @@ def record_message(key: str) -> Optional[str]:
     audio_bytes = audio_recorder(key=f"audio_recorder_{key}")
     if not audio_bytes:
         return None
-    audio_stream = BytesIO(audio_bytes)
-
-    # Save audio to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
         temp_audio.write(audio_bytes)
         temp_audio_path = temp_audio.name
@@ -26,7 +22,8 @@ def record_message(key: str) -> Optional[str]:
         os.remove(temp_audio_path)
 
     if transcription:
-        st.info(f"Your Answer: {transcription}", icon="🎤")
+        if DEBUG_MODE:
+            st.info(f"Your Answer: {transcription}", icon="🎤")
     else:
         st.error("Transcription failed. Please try again.")
 
