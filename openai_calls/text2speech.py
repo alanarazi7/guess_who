@@ -1,3 +1,4 @@
+import pygame
 import openai
 import tempfile
 import os
@@ -18,12 +19,16 @@ def play_voice(text):
         temp_audio.write(response.content)
         temp_audio_path = temp_audio.name
 
-    # Play audio using system's default tool
-    os.system(f"afplay {temp_audio_path}")  # macOS-specific, replace for other OS if needed
+    # Play audio using pygame
+    pygame.mixer.init()
+    pygame.mixer.music.load(temp_audio_path)
+    pygame.mixer.music.play()
+    while pygame.mixer.music.get_busy():
+        pass
 
     # Clean up the file
     os.remove(temp_audio_path)
 
 
 if __name__ == "__main__":
-    play_voice("Guess who is a really nice game, I'd love to play!")
+    play_voice("Hello, how are you?")
