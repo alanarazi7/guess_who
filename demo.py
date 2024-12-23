@@ -1,13 +1,12 @@
 import random
-from dataclasses import dataclass
-from typing import Optional
 
 import streamlit as st
 
+from dialogue.ask_card import ask_your_card
 from dialogue.introduction import explain_game_and_ask_name
 from dialogue.question_to_condition import get_trait_from_question
 from game_data.board import Board
-from game_data.characters import CHARACTERS, Person
+from game_data.characters import CHARACTERS
 from game_data.game_state import GameState, get_game_state
 from game_data.image import display_board_image
 from openai_calls.constants import DEBUG_MODE
@@ -15,29 +14,9 @@ from openai_calls.prompt2speech import tell_prompt
 from openai_calls.speech2text import record_message
 from openai_calls.text2speech import play_voice
 from openai_calls.text2text import ask_textually
-from utils import print_ts, normalize_str
+from utils import print_ts
 
 
-
-def ask_your_card(gs: GameState):
-    secret_card_prompt = f'''The player's name is {gs.player_name}. Ask him to pick a character from game board in 
-    front of him. Clarify that you'll just keep the secret identity in order to keep track on the game, and that you 
-    won't use it to win him.'''
-    tell_prompt(secret_card_prompt)
-    user_choice = record_message(key="user_choice")
-    if not user_choice:
-        return
-    understand_char = f'''The possible names are {[p.name for p in CHARACTERS]}. 
-    You asked the kid to pick a character and tell it to you. He said: {user_choice}. 
-    Confirm the name of the picked character. Output a JSON with the key `name` and the value being the name'''
-    ai_understanding_name = ask_textually(understand_char, force_json=True)
-
-    candidates = [p for p in CHARACTERS if
-                  normalize_str(p.name) == normalize_str(ai_understanding_name['name'])]
-    if len(candidates) == 1:
-        gs.player_char = candidates[0]
-    else:
-        st.error("Oops! The character name could not be uniquely identified. Please try again.", icon="⚠")
 
 
 def choose_ai_card(gs: GameState):
@@ -112,7 +91,8 @@ def main():
 
     # Start the game when the button is clicked
     if not gs.start_game and st.button("Start Game!"):
-        st.success("Starting the game!", icon="🎉")
+        if DEBUG_MODE:
+            st.success("Starting the game!", icon="🎉")
         gs.start_game = True
 
     # Explain the game and ask for the player's name
@@ -121,7 +101,6 @@ def main():
 
     # Greet the player after receiving their name and ask to pick their secret card
     if gs.player_name and not gs.player_char:
-        st.success(f"Nice to meet you, {gs.player_name}!", icon="👋")
         ask_your_card(gs)
 
     # Confirm the player's chosen character and let the computer choose a character
@@ -129,16 +108,15 @@ def main():
         choose_ai_card(gs)
 
     if gs.ai_char:
-        st.warning(f"Your character is {gs.player_char.name}. Don't forget it!", icon="👤")
+        st.warning(f"Hi {gs.player_name}! Your character is {gs.player_char.name}. Don't forget it!", icon="👤")
         with st.expander("AI's Secret Character"):
-            st.success(f"The AI has chosen: {gs.ai_char.name}", icon="🤖")
+            st.info(f"The AI has chosen: {gs.ai_char.name}", icon="🤖")
 
     if (not gs.ai_board) and (not gs.player_board):
         gs.player_board = Board(remaining=list(CHARACTERS))
         gs.ai_board = Board(remaining=list(CHARACTERS))
 
     if gs.ai_char and not gs.questions_asked:
-        st.success(f"Great! The computer and player have both chosen their characters. Let's begin!", icon="🎮")
         tell_prompt(f"Invite the player {gs.player_name} to ask his first question, which should be a yes/no one.")
         gs.questions_asked = True
 
