@@ -27,7 +27,10 @@ def play_voice(text):
         pass
 
     # Clean up the file
-    os.remove(temp_audio_path)
+    try:
+        os.remove(temp_audio_path)
+    except:
+        pass
 
 
 if __name__ == "__main__":
