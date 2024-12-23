@@ -116,7 +116,7 @@ def main():
     if gs.ai_char:
         st.warning(f"Your character is {gs.player_char.name}. Don't forget it!", icon="👤")
         with st.expander("AI's Secret Character"):
-            st.success(f"The AI has chosen: {gs.ai_char.name}", icon="🕵")
+            st.success(f"The AI has chosen: {gs.ai_char.name}", icon="🤖")
 
     # # Start Game
     # # TODO: randomly decide who starts...
