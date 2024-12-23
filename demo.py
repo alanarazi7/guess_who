@@ -2,9 +2,7 @@ import random
 from dataclasses import dataclass
 
 import streamlit as st
-from PIL import Image
 
-from dialogue.ask_player_name import ask_player_name
 from dialogue.ask_your_card import ask_your_card
 from dialogue.introduction import explain_game_and_ask_name
 from dialogue.system_message import SYS_MSG
@@ -30,11 +28,12 @@ def main():
     if not gs.start_game:
         start_game(gs)
 
-    if gs.start_game and not gs.asked_name:
-        ask_player_name(gs)
+    if gs.start_game and not gs.player_name:
+        explain_game_and_ask_name(gs)
 
-    if gs.asked_name:
-        st.warning("Was asked name, now answer")
+    if gs.player_name:
+        st.success(f"Nice to meet you, {gs.player_name}!", icon="👋")
+        st.warning("Implement next step!")
     #
     # # Step 2: Process the recorded name
     # if game_state.waiting_for_name and not game_state.player_name:

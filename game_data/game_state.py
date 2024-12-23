@@ -1,11 +1,14 @@
 from dataclasses import dataclass
+from typing import Optional
 
 import streamlit as st
 
 @dataclass
 class GameState:
     start_game: bool = False
-    asked_name: bool = False
+    ai_intro: Optional[str] = None
+    player_recorded_name: bool = False
+    player_name: Optional[str] = None
 
 
 
