@@ -91,6 +91,7 @@ def main():
         explain_game_and_ask_name(gs)
 
     if gs.player_name and not gs.pick_character:
+        st.success(f"Welcome {gs.player_name}! Let's have some fun!", icon="🎮")
         if st.button("Pick Your Character 🎭"):
             gs.pick_character = True
 
@@ -111,33 +112,33 @@ def main():
 
     if gs.ai_char and (not gs.questions_asked):
         if st.button("Ask Question ▶️"):
-            q = f"Invite the player {gs.player_name} to ask their first question, which should be a yes/no one."
+            q = f"Tell {gs.player_name} to ask his first question, which should be a yes/no one."
             tell_prompt(q)
             gs.questions_asked = True
 
-    if gs.questions_asked:
-        st.error("The game is not yet implemented. Please come back later.", icon="⚠️")
+    if not gs.questions_asked:
+        return
 
-    if gs.player_turn:
-        do_player_turn(gs)
-        if len(gs.player_board.remaining) > 1:
-            st.info(gs.player_board.remaining_msg, icon="👤")
-            play_voice(f"You have {len(gs.player_board.remaining)} more possible characters!")
-        else:
-            winning_msg = f"You found my character! It is {gs.player_board.remaining[0].name}."
-            st.success(winning_msg)
-            play_voice(winning_msg)
-            gs.game_over = True
-    else:
-        do_computer_turn(gs)
-        if len(gs.ai_board.remaining) > 1:
-            st.info(gs.ai_board.remaining_msg, icon="🤖")
-            play_voice(f"I have {len(gs.ai_board.remaining)} more possible characters!")
-        else:
-            winning_msg = f"AI: I have found your character! It is {gs.ai_board.remaining[0].name}."
-            st.success(winning_msg)
-            play_voice(winning_msg)
-            gs.game_over = True
+    # if gs.player_turn:
+    #     do_player_turn(gs)
+    #     if len(gs.player_board.remaining) > 1:
+    #         st.info(gs.player_board.remaining_msg, icon="👤")
+    #         play_voice(f"You have {len(gs.player_board.remaining)} more possible characters!")
+    #     else:
+    #         winning_msg = f"You found my character! It is {gs.player_board.remaining[0].name}."
+    #         st.success(winning_msg)
+    #         play_voice(winning_msg)
+    #         gs.game_over = True
+    # else:
+    #     do_computer_turn(gs)
+    #     if len(gs.ai_board.remaining) > 1:
+    #         st.info(gs.ai_board.remaining_msg, icon="🤖")
+    #         play_voice(f"I have {len(gs.ai_board.remaining)} more possible characters!")
+    #     else:
+    #         winning_msg = f"AI: I have found your character! It is {gs.ai_board.remaining[0].name}."
+    #         st.success(winning_msg)
+    #         play_voice(winning_msg)
+    #         gs.game_over = True
 
     if gs.game_over:
         st.warning("The game is over. Please refresh the page to play again.", icon="🏁")
