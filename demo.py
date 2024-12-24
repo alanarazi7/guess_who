@@ -17,8 +17,10 @@ from openai_calls.text2speech import play_voice
 
 def main():
     st.title("Guess Who ❓")
-    display_board_image()
     gs = get_game_state()
+
+    if not gs.ai_char:
+        display_board_image()
 
     if (not gs.start_game) and st.button("Start Game! 🎉"):
         gs.start_game = True
@@ -38,9 +40,12 @@ def main():
         gs.ai_char = random.choice(CHARACTERS)
 
     if gs.ai_char:
-        st.image(gs.player_char.image, caption=f"Hi {gs.player_name}! Your secret character is {gs.player_char}! 👤")
-        with st.expander("AI's Secret Character"):
-            st.image(gs.ai_char.image, caption=f"AI's Secret Character is {gs.ai_char} 🤖")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.image(gs.player_char.image, caption=f"Hi {gs.player_name}! Your secret character is {gs.player_char}! 👤")
+        with col2:
+            with st.expander("AI's Secret Character"):
+                st.image(gs.ai_char.image, caption=f"AI's Secret Character is {gs.ai_char} 🤖")
         st.markdown("-----------------------------------------------------------")
 
     if not gs.ai_board or not gs.player_board:
