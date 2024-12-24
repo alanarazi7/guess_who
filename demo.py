@@ -38,8 +38,10 @@ def main():
         gs.ai_char = random.choice(CHARACTERS)
 
     if gs.ai_char:
+        st.image(gs.player_char.image, caption="Your Character")
         st.warning(f"Hi {gs.player_name}! Your character is {gs.player_char.name}. Don't forget it!", icon="👤")
         with st.expander("AI's Secret Character"):
+            st.image(gs.ai_char.image, caption="AI's Secret Character")
             st.info(f"The AI has chosen: {gs.ai_char.name}", icon="🤖")
         st.markdown("-----------------------------------------------------------")
 

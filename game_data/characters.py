@@ -1,7 +1,12 @@
 from dataclasses import asdict, fields
-from typing import List
+from typing import List, Optional
 
 from dataclasses import dataclass
+
+from PIL import Image
+
+from game_data.image import load_image
+
 
 @dataclass
 class Person:
@@ -42,6 +47,10 @@ class Person:
     dimples: bool = False
     freckles: bool = False
     smile: bool = False
+    image: Optional[Image] = None
+
+    def __post_init__(self):
+        self.image = load_image(f"pictures/{self.name.lower()}.jpg")
 
 
     def __str__(self):
@@ -69,19 +78,19 @@ TRAITS = [field.name for field in fields(Person) if field.name != 'name']
 
 # Predefined characters
 CHARACTERS: List[Person] = [
-    Person(name="Audrey", white_hair=True, clean_shaved_face=True, earrings=True, lipstick=True,
-           full_head_of_hair=True, female=True, large_nose=True, brown_eyes=True, thin_lips=True, darker_skin=True,
-           teeth=True, smile=True),
+    # Person(name="Audrey", white_hair=True, clean_shaved_face=True, earrings=True, lipstick=True,
+    #        full_head_of_hair=True, female=True, large_nose=True, brown_eyes=True, thin_lips=True, darker_skin=True,
+    #        teeth=True, smile=True),
     Person(name="Mia", black_hair=True, clean_shaved_face=True, lipstick=True, parting=True, full_head_of_hair=True,
            female=True, brown_eyes=True, thin_lips=True, darker_skin=True, teeth=True, smile=True, freckles=True),
     Person(name="Lily", brown_hair=True, clean_shaved_face=True, hat=True, lipstick=True, full_head_of_hair=True,
            female=True, green_eyes=True, thin_lips=True, darker_skin=True, teeth=True, smile=True),
-    Person(name="Sara", black_hair=True, clean_shaved_face=True, lipstick=True,
-           ponytail=True, full_head_of_hair=True, female=True, blue_eyes=True, small_mouth=True, darker_skin=True),
+    # Person(name="Sara", black_hair=True, clean_shaved_face=True, lipstick=True,
+    #        ponytail=True, full_head_of_hair=True, female=True, blue_eyes=True, small_mouth=True, darker_skin=True),
     Person(name="Katie", blonde_hair=True, clean_shaved_face=True, hat=True, lipstick=True,
            ponytail=True, full_head_of_hair=True, female=True, blue_eyes=True, small_mouth=True),
-    Person(name="Sophia", brown_hair=True, clean_shaved_face=True, lipstick=True, earrings=True,
-           curls=True, full_head_of_hair=True, female=True, green_eyes=True, darker_skin=True, teeth=True, dimples=True, smile=True),
+    # Person(name="Sophia", brown_hair=True, clean_shaved_face=True, lipstick=True, earrings=True,
+    #        curls=True, full_head_of_hair=True, female=True, green_eyes=True, darker_skin=True, teeth=True, dimples=True, smile=True),
     Person(name="Rachel", brown_hair=True, clean_shaved_face=True, glasses=True, earrings=True, lipstick=True,
            parting=True, full_head_of_hair=True, female=True, blue_eyes=True, small_mouth=True, freckles=True),
     Person(name="Olivia", brown_hair=True, mixed_color_hair=True, clean_shaved_face=True, lipstick=True,
@@ -102,8 +111,8 @@ CHARACTERS: List[Person] = [
            full_head_of_hair=True, male=True, green_eyes=True, thin_lips=True),
     Person(name="Daniel", red_hair=True, beard=True, moustache=True, thick_eyebrows=True,
            parting=True, full_head_of_hair=True, male=True, large_nose=True, green_eyes=True, thick_lips=True, freckles=True),
-    Person(name="Jo", moustache=True, thick_eyebrows=True, glasses=True,
-           bald_head=True, male=True, large_nose=True, blue_eyes=True, thin_lips=True, darker_skin=True, teeth=True, smile=True),
+    # Person(name="Jo", moustache=True, thick_eyebrows=True, glasses=True,
+    #        bald_head=True, male=True, large_nose=True, blue_eyes=True, thin_lips=True, darker_skin=True, teeth=True, smile=True),
     Person(name="David", blonde_hair=True, moustache=True, thick_eyebrows=True, hat=True,
            full_head_of_hair=True, male=True, large_nose=True, blue_eyes=True, thick_lips=True, teeth=True, smile=True,),
     Person(name="Ben", brown_hair=True, stubble=True, clean_shaved_face=True, glasses=True, earrings=True,
@@ -114,8 +123,8 @@ CHARACTERS: List[Person] = [
            bald_head=True, male=True, large_nose=True, green_eyes=True, thick_lips=True, darker_skin=True),
     Person(name="Nick", blonde_hair=True, stubble=True, earrings=True,
            full_head_of_hair=True, male=True, brown_eyes=True, thin_lips=True, freckles=True),
-    Person(name="Lucas", black_hair=True, clean_shaved_face=True,
-           full_head_of_hair=True, male=True, green_eyes=True, darker_skin=True, freckles=True),
+    # Person(name="Lucas", black_hair=True, clean_shaved_face=True,
+    #        full_head_of_hair=True, male=True, green_eyes=True, darker_skin=True, freckles=True),
     Person(name="Emma", red_hair=True, clean_shaved_face=True, blushing_cheeks=True, lipstick=True,
            parting=True, full_head_of_hair=True, female=True, green_eyes=True, thin_lips=True, freckles=True),
 ]
