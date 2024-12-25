@@ -1,4 +1,4 @@
-from dataclasses import asdict
+from dataclasses import asdict, fields
 from typing import List, Optional
 
 from dataclasses import dataclass
@@ -78,15 +78,20 @@ class Character:
 
 def load_characters_df() -> pd.DataFrame:
     df = pd.read_excel("files/Characteristics_Matrix.xlsx", header=1)
-    df.rename(columns={'Unnamed: 0': 'Name'}, inplace=True)
-    df = df[~df['Name'].isna()]
+    df.rename(columns={'Unnamed: 0': 'name'}, inplace=True)
+    df = df[~df['name'].isna()]
+    df.columns = [c.lower().strip().replace(" ", "_").replace("'", "") for c in df.columns]
     return df
 
 characters_df = load_characters_df()
 # TODO: currently we don't allow guessing, but it's easily expandable by allowing "name" to be a trait
-TRAITS = [c for c in characters_df.columns if c != 'Name']
+TRAITS = [c for c in characters_df.columns if c != 'name']
 
 CHARACTERS = []
 for _, row in characters_df.iterrows():
-    char = Character(**row.to_dict())
-    CHARACTERS.append(char)
+    try:
+        char = Character(**row.to_dict())
+        CHARACTERS.append(char)
+    except TypeError as e:
+        char_fields = fields(Character)
+        raise TypeError(f"{e}: Error creating character: {row.to_dict()}. Expected {char_fields}")
