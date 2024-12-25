@@ -18,7 +18,10 @@ class GameState:
     player_board: Optional[Board] = None
     ai_board: Optional[Board] = None
     questions_asked: bool = False
-    player_turn: bool = True
+    who_starts_was_asked: bool = False
+    user_will_record_who_starts: bool = False
+    who_starts: Optional[str] = None
+    player_turn: bool = False
     player_q: Optional[str] = None
     player_q_attempts: int = 0
     ai_turn: bool = False
