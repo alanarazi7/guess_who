@@ -81,6 +81,10 @@ def load_characters_df() -> pd.DataFrame:
     df.rename(columns={'Unnamed: 0': 'name'}, inplace=True)
     df = df[~df['name'].isna()]
     df.columns = [c.lower().strip().replace(" ", "_").replace("'", "") for c in df.columns]
+    df.fillna(0, inplace=True)
+    for col in df:
+        if col != 'name':
+            df[col] = df[col].astype(bool)
     return df
 
 characters_df = load_characters_df()
