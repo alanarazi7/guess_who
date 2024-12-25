@@ -76,7 +76,7 @@ class Person:
 
 
 def load_characters_df() -> pd.DataFrame:
-    df = pd.read_excel("files/Characteristics_Matrix.xlsx")
+    return pd.read_excel("files/Characteristics_Matrix.xlsx")
 
 # TODO: currently we don't allow guessing, but it's easily expandable by allowing "name" to be a trait
 TRAITS = [field.name for field in fields(Person) if field.name != 'name']
