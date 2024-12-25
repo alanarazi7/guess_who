@@ -2,12 +2,12 @@ from dataclasses import dataclass
 from secrets import choice
 from typing import List
 
-from game_data.characters import Person, TRAITS
+from game_data.characters import Character, TRAITS
 
 
 @dataclass
 class Board:
-    remaining: List[Person]
+    remaining: List[Character]
 
 
     def update_board(self, traits: List[str], has_traits: bool):
