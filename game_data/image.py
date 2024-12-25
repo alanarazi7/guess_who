@@ -3,7 +3,7 @@ from PIL import Image
 
 
 def display_board_image():
-    image = load_image("pictures/guess_who_board.jpg")
+    image = load_image("files/guess_who_board.jpg")
     st.image(image, caption="Guess Who Board")
 
 
