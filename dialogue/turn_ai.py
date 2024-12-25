@@ -5,7 +5,7 @@ from openai_calls.prompt2speech import tell_prompt
 from openai_calls.text2text import ask_textually
 
 
-def get_ai_q(gs: GameState) -> str:
+def get_ai_q(gs: GameState):
     gs.ai_trait = gs.ai_board.get_non_trivial_trait()
     prompt = (
         f"""You are an AI playing a game of Guess Who. You are trying to guess the hidden character of your opponent.\n
