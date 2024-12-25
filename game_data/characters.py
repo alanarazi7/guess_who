@@ -3,9 +3,11 @@ from typing import List, Optional
 
 from dataclasses import dataclass
 
+import pandas as pd
 from PIL import Image
 
 from game_data.image import load_image
+
 
 
 @dataclass
@@ -50,7 +52,7 @@ class Person:
     image: Optional[Image] = None
 
     def __post_init__(self):
-        self.image = load_image(f"pictures/{self.name.lower()}.jpg")
+        self.image = load_image(f"files/individuals/{self.name.lower()}.jpg")
 
 
     def __str__(self):
@@ -72,6 +74,9 @@ class Person:
                 return True
         return False
 
+
+def load_characters_df() -> pd.DataFrame:
+    df = pd.read_excel("files/Characteristics_Matrix.xlsx")
 
 # TODO: currently we don't allow guessing, but it's easily expandable by allowing "name" to be a trait
 TRAITS = [field.name for field in fields(Person) if field.name != 'name']
