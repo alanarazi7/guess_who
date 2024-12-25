@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional
 
 import streamlit as st
 
 from game_data.board import Board
-from game_data.characters import Person
+from game_data.characters import Character
 
 
 @dataclass
@@ -13,8 +13,8 @@ class GameState:
     ai_intro: bool = False
     player_name: Optional[str] = None
     pick_character: bool = False
-    player_char: Optional[Person] = None
-    ai_char: Optional[Person] = None
+    player_char: Optional[Character] = None
+    ai_char: Optional[Character] = None
     player_board: Optional[Board] = None
     ai_board: Optional[Board] = None
     questions_asked: bool = False
