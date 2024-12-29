@@ -4,6 +4,8 @@ import wave
 import tempfile
 import os
 
+import streamlit as st
+
 from constants import RECORDING_SECONDS
 from openai_calls.constants import OPENAI_API_KEY
 
@@ -16,16 +18,16 @@ def record_audio(duration=5):
     CHANNELS = 1
     RATE = 44100
 
+    st.write("Recording... Speak now!")
     p = pyaudio.PyAudio()
     stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 
-    print("Recording... Speak now!")
     frames = []
     for _ in range(0, int(RATE / CHUNK * duration)):
         data = stream.read(CHUNK)
         frames.append(data)
 
-    print("Recording complete!")
+    st.write("Recording complete!")
     stream.stop_stream()
     stream.close()
     p.terminate()
